@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/addons/p5.sound.min.js"></script>
+   <title>Document</title>
+   <link rel="stylesheet" href="./main.css">
+   <script src="sketch.js"></script>
+
+</head>
+<body>
+   <div class="transition"></div>
+
+   <div class="backButton sys"></div>
+   <div class="intro">
+      <div class="introButton introStart"></div>
+      <div class="introButton introLookSave"></div>
+   </div>
+
+   <div class="with">
+      <img src="./images/UI/with.png" alt="">
+   </div>
+
+   <!-- 전체 동화 -->
+   <div class="showAll"></div>
+   <div class="carousel">
+      <div class="showBook">
+         <div class="showBooks">
+            <div class="cards">
+               <div class="card">
+                  <img class="thum" src="./images/UI/img5.png" alt="" draggable="false">
+                  <div class="title">콩쥐 팥쥐</div>
+                  <div class="time">12초</div>
+                  <img class="trash" src="./images/UI/trash.png" alt="">
+               </div>
+               <div class="card">
+                  <img class="thum" src="./images/UI/img4.png" alt="" draggable="false">
+                  <div class="title">슬픈 놀부</div>
+                  <div class="time">15초</div>
+                  <img class="trash" src="./images/UI/trash.png" alt="">
+               </div>
+               <div class="card">
+                  <img class="thum" src="./images/UI/img3.png" alt="" draggable="false">
+                  <div class="title">홍부리 영감</div>
+                  <div class="time">10초</div>
+                  <img class="trash" src="./images/UI/trash.png" alt="">
+               </div>
+               <div class="card">
+                  <img class="thum" src="./images/UI/img2.png" alt="" draggable="false">
+                  <div class="title">콩쥐 팥쥐</div>
+                  <div class="time">6초</div>
+                  <img class="trash" src="./images/UI/trash.png" alt="">
+               </div>
+               <div class="card">
+                  <img class="thum" src="./images/UI/img1.png" alt="" draggable="false">
+                  <div class="title">집에서 나홀로</div>
+                  <div class="time">20초</div>
+                  <img class="trash" src="./images/UI/trash.png" alt="">
+               </div>
+            </div>
+         </div>
+         <div class="showBooks">
+            <div class="cards">
+               <div class="card">
+                  <img class="thum" src="./images/UI/img6.png" alt="" draggable="false">
+                  <div class="title">콩쥐 팥쥐</div>
+                  <div class="time">12초</div>
+                  <img class="trash" src="./images/UI/trash.png" alt="">
+               </div>
+               <div class="card">
+                  <img class="thum" src="./images/UI/img7.png" alt="" draggable="false">
+                  <div class="title">하늘에서 떨어진 음식</div>
+                  <div class="time">12초</div>
+                  <img class="trash" src="./images/UI/trash.png" alt="">
+               </div>
+               <div class="card">
+                  <img class="thum" src="./images/UI/img8.png" alt="" draggable="false">
+                  <div class="title">사자와 호랑이</div>
+                  <div class="time">12초</div>
+                  <img class="trash" src="./images/UI/trash.png" alt="">
+               </div>
+               <div class="card">
+                  <img class="thum" src="./images/UI/img9.png" alt="" draggable="false">
+                  <div class="title">두꺼비집 이야기</div>
+                  <div class="time">22초</div>
+                  <img class="trash" src="./images/UI/trash.png" alt="">
+               </div>
+               <div class="card">
+                  <img class="thum" src="./images/UI/img10.png" alt="" draggable="false">
+                  <div class="title">전래동화</div>
+                  <div class="time">10초</div>
+                  <img class="trash" src="./images/UI/trash.png" alt="">
+               </div>
+            </div>
+         </div>
+         <div class="showBooks">
+            <div class="cards">
+               <div class="card">
+                  <img class="thum" src="./images/UI/img11.png" alt="" draggable="false">
+                  <div class="title">아기 돼지</div>
+                  <div class="time">12초</div>
+                  <img class="trash" src="./images/UI/trash.png" alt="">
+               </div>
+               <div class="card">
+                  <img class="thum" src="./images/UI/img12.png" alt="" draggable="false">
+                  <div class="title">왕자님과 공주님</div>
+                  <div class="time">17초</div>
+                  <img class="trash" src="./images/UI/trash.png" alt="">
+               </div>
+               <div class="card">
+                  <img class="thum" src="./images/UI/img13.png" alt="" draggable="false">
+                  <div class="title">꼼이와 깜이</div>
+                  <div class="time">14초</div>
+                  <img class="trash" src="./images/UI/trash.png" alt="">
+               </div>
+              
+               
+            </div>
+         </div>
+      </div>
+      <div class="showBook_info">
+         <div class="showBook_block showBook_block_seleted"></div>
+         <div class="showBook_block"></div>
+         <div class="showBook_block"></div>
+      </div>
+   </div>
+
+
+   <div class="interface displayNone">
+      <div class="step">
+         <div class="dot"></div>
+         <div class="dot"></div>
+         <div class="dot"></div> 
+         <div class="dot"></div>
+         <div class="dot"></div>
+      </div>
+      <!-- 뒤로가는 버튼, 홈버튼 -->
+      <div class="backButton sys"></div>
+      <div class="drawButton">
+         <div class="drawHuman draw" data-name="draw"></div>
+         <div class="drawStuff draw" data-name="stuff"></div>
+         <div class="drawHome draw" data-name="building"></div>
+      </div>
+
+      <!-- 오른쪽 버튼 -->
+      <div class="controlButton">
+         <div class="play sys"></div>
+         <div class="reuse sys"></div>
+      </div>
+
+      <div class="profile sys">
+         <div class="profile1"></div>
+         <div class="profile2"></div>
+      </div>
+
+      <!-- 아래쪽 배치 완성 버튼 -->
+      <div class="button moveStart">
+      </div>
+      <div class="recordRap">
+         <div class="recordPrev">
+         </div>
+         <div class="recordNext">
+         </div>
+      </div>
+   </div>
+
+   <div class="tutorial displayNone animation-easeUp">
+      <div class="img" id="canvasImage"></div>
+      <input type="text" class="namearea" placeholder="동화의 이름을 지어주세요">
+      <div class="titleButton"></div>
+   </div>
+   
+   <div class="namemake displayNone animation-fadein"></div>
+
+   <div class="tutorial displayNone animation-easeUp playWith">
+      <div class="playWithButton">방 만들기</div>
+      <div class="playWithButton">방에 입장하기</div>
+   </div>
+   <div class="tutorial displayNone animation-easeUp code">
+      <p>친구에게 초대코드를 알려주세요!</p>
+      <div class="maxNumber">
+         <img src="images/UI/people.png" alt=""><span>0/3</span>
+      </div>
+      <h2>1125A</h2>
+      <div class="titleButton together"></div>
+   </div>
+
+   <div class="namemake displayNone animation-fadein"></div>
+
+
+
+   
+   <!-- 오른쪽 그림판 -->
+   <div class="drawing leftMove">
+      <div class="miniBack sys"></div>
+      <div id="p5-container"></div>
+
+      <div class="painting">
+         <div class="size">
+            <div data-size="6" class="cButton" id = "small"><div data-size="6"></div></div>
+            <div data-size="12" class="cButton" id = "regular"><div data-size="12"></div></div>
+            <div data-size="18" class="cButton" id = "medium"><div data-size="18"></div></div>
+            <div data-size="24" class="cButton" id = "bold"><div data-size="24"></div></div>
+         </div>
+         <div class="color">
+            <div data-color="#FA2B2D" class="cButton" id = "red"><div data-color="#FA2B2D"></div></div>
+
+            <div data-color="#FF9700" class="cButton" id = "tangerine"><div data-color="#FF9700"></div></div>
+            <div data-color="#ffee00" class="cButton" id = "red"><div data-color="#ffee00"></div></div>
+            <div data-color="#47CC47" class="cButton" id = "red"><div data-color="#47CC47"></div></div>
+            <div data-color="#000000" class="cButton" id = "red"><div data-color="#000000"></div></div>
+            <div data-color="#8008FF" class="cButton" id = "red"><div data-color="#8008FF"></div></div>
+            <div data-color="#007CFF" class="cButton" id = "red"><div data-color="#007CFF"></div></div>
+            <div data-color="#00AAEF" class="cButton" id = "red"><div data-color="#00AAEF"></div></div>
+            <div data-color="#01BFC9" class="cButton" id = "red"><div data-color="#01BFC9"></div></div>
+            <div data-color="#fff" class="cButton" id = "red"><div data-color="#fff"></div></div>
+         </div>
+      </div>
+      <div class="sendButton come"></div>
+      <div class="sendButton delete delete1"></div>
+   </div>
+
+
+
+
+
+   <!-- 물건 그림판 -->
+   <div class="stuff leftMove">
+      <div class="miniBack sys"></div>
+      <div id="p5-container2"></div>
+
+      <div class="painting">
+         <div class="size2">
+            <div data-size="6" class="cButton" id = "small"><div data-size="6"></div></div>
+            <div data-size="12" class="cButton" id = "regular"><div data-size="12"></div></div>
+            <div data-size="18" class="cButton" id = "medium"><div data-size="18"></div></div>
+            <div data-size="24" class="cButton" id = "bold"><div data-size="24"></div></div>
+         </div>
+         <div class="color2">
+            <div data-color="#FA2B2D" class="cButton" id = "red"><div data-color="#FA2B2D"></div></div>
+
+            <div data-color="#FF9700" class="cButton" id = "tangerine"><div data-color="#FF9700"></div></div>
+            <div data-color="#ffee00" class="cButton" id = "red"><div data-color="#ffee00"></div></div>
+            <div data-color="#47CC47" class="cButton" id = "red"><div data-color="#47CC47"></div></div>
+            <div data-color="#000000" class="cButton" id = "red"><div data-color="#000000"></div></div>
+            <div data-color="#8008FF" class="cButton" id = "red"><div data-color="#8008FF"></div></div>
+            <div data-color="#007CFF" class="cButton" id = "red"><div data-color="#007CFF"></div></div>
+            <div data-color="#00AAEF" class="cButton" id = "red"><div data-color="#00AAEF"></div></div>
+            <div data-color="#01BFC9" class="cButton" id = "red"><div data-color="#01BFC9"></div></div>
+            <div data-color="#fff" class="cButton" id = "red"><div data-color="#fff"></div></div>
+
+         </div>
+      </div>
+      <div class="sendButton2 come"></div>
+      <div class="sendButton2 delete delete2"></div>
+   </div>
+
+
+
+   <!-- 오른쪽 건물배치 -->
+   <div class="building leftMove">
+      <div class="miniBack sys"></div>
+      <div class='dragable'>
+         <div class="buildingList">
+            <div class="buildingBox" data-name="House01"></div>
+            <div class="buildingBox" data-name="House02"></div>
+            <div class="buildingBox" data-name="House03"></div>
+            <div class="buildingBox" data-name="House04"></div>
+            <div class="buildingBox" data-name="House05"></div>
+            <div class="buildingBox" data-name="House06"></div>
+         </div>
+      </div>
+   </div>
+
+   <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
+   <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-firestore.js"></script>
+   <canvas id="three-canvas"></canvas>
+
+   <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyB4UIZAuBZ0FQdWYwXn0YVu7Cc7685nJTo",
+            authDomain: "doodle-world-3096b.firebaseapp.com",
+            databaseURL: "https://doodle-world-3096b-default-rtdb.firebaseio.com",
+            projectId: "doodle-world-3096b",
+            storageBucket: "doodle-world-3096b.appspot.com",
+            messagingSenderId: "962694235252",
+            appId: "1:962694235252:web:0ca4664f5fa03a77463d21"
+         };
+      firebase.initializeApp(firebaseConfig);
+   </script>
+   
+</body>
+</html>
