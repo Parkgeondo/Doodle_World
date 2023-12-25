@@ -165,8 +165,8 @@ export default function example() {
       // sceneChange();
    });
    introLookSave.addEventListener('click', function(){
-      showAll.classList.add('showAll_move')
-      cameraMove({x:-0.6, y: 5, z:-4.9},{x:-0.6, y: 0, z:-14});
+      introStep = 'selectStory'
+      uiControl(introStep)
    });
 
 
@@ -385,6 +385,7 @@ export default function example() {
    //intro     = 처음 메뉴가 나왔을때,
    //selectMap = 맵고르는 화면,
    //intomap   = 맵 화면
+   //selectStory  = 동화 고르는 화면
 
    //현대 단계에 따라서 인트로 UI 변경
    function uiControl(step){
@@ -394,6 +395,10 @@ export default function example() {
       }else if(step == 'intro'){
          intro.classList.remove('introDown')
          backButton.classList.remove('introBackButton')
+         showAll.classList.remove('showAll_move')
+      }else if(step == 'selectStory'){
+         showAll.classList.add('showAll_move')
+         cameraMove({x:-0.6, y: 5, z:-4.9},{x:-0.6, y: 0, z:-14});
       }
    }
 
@@ -762,7 +767,7 @@ function playanimationEnd() {
    }else if(draggableObject.children[0].subject == 'object'){
       const result = objects.find(element => element.mesh.id === draggableObject.id)
       result.actions[1].stop();
-      result.actions[0].play();
+      result.actions[4].play();
    }
 }
 
