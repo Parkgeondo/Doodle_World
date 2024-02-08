@@ -1,27 +1,33 @@
 import * as THREE from 'three';
+
+// 라이브러리 정리
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 import { DragControls } from "three/examples/jsm/controls/DragControls"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { PreventDragClick } from "./PreventDragClick"
 import gsap from 'gsap'
+import { MeshLine, MeshLineMaterial, MeshLineRaycast } from 'three.meshline';
+
 import Plane from './plane';
 import Dust from './dust';
+import House from './House';
+
 import Object from './object';
 import createP5 from './sketch';
 import createP52 from './sketch2';
-import Tree from './tree';
-import Stone from './stone';
-import House from './House';
+
+// 배경
 import Environment from './environment';
 import Environment_sea from './environment_sea';
 import Environment_night from './environment_night';
-import { MeshLine, MeshLineMaterial, MeshLineRaycast } from 'three.meshline';
-import intro from './intro';
-import json from './paticles.json';
-import Nebula, { SpriteRenderer } from "three-nebula";
+
+//인트로
+import intro2 from './intro';
 
 
 export default function example() {
+
+   //파이어 베이스 부분
    const db = firebase.firestore();
    db.collection('storys').get().then((data)=>{
       data.forEach((doc)=>{
@@ -45,26 +51,26 @@ export default function example() {
       
 
    // 인트로 화면 시작--------------------------------------------------------------------
-   const scene3 = new THREE.Scene();
-   scene3.background = new THREE.Color('#EBE5D9');
+   const introScene = new THREE.Scene();
+   introScene.background = new THREE.Color('#EBE5D9');
 
    // Camera
-   const camera3 = new THREE.PerspectiveCamera(
+   const introCamera = new THREE.PerspectiveCamera(
       68,
       window.innerWidth / window.innerHeight,
       0.3,
       1000
    );
 
-   camera3.position.x = -2;
-   camera3.position.y = 4.8;
-   camera3.position.z = 6;
-   camera3.lookAt(1,-10,-1)
-   scene3.add(camera3);
+   introCamera.position.x = -2;
+   introCamera.position.y = 4.8;
+   introCamera.position.z = 6;
+   introCamera.lookAt(1,-10,-1)
+   introScene.add(introCamera);
 
-   // Light
-   const ambientLight3 = new THREE.AmbientLight('#F8F4EC', 1.25);
-   scene3.add(ambientLight3);
+   // 인트로 화면 조명 설정
+   const introAmbientLight = new THREE.AmbientLight('#F8F4EC', 1.25);
+   introScene.add(introAmbientLight);
 
    const size = 10;
 
@@ -81,16 +87,15 @@ export default function example() {
 
    directionalLight3.castShadow = true;
 
-   scene3.add(directionalLight3);
+   introScene.add(directionalLight3);
 
-   // 그리기
-   const clock3 = new THREE.Clock();
-
-   const gltfLoader =  new GLTFLoader()
+   
+   // 인트로 맵 불러오기
+   const gltfLoader =  new GLTFLoader();
 
    gltfLoader.load( './models/kidapp.glb', function ( gltf ) {
       const kidProp = gltf.scene
-      scene3.add(kidProp);
+      introScene.add(kidProp);
       for(var i=1; i< kidProp.children.length; i++){
          kidProp.children[i].castShadow = true;
       }
@@ -101,38 +106,25 @@ export default function example() {
    } ); 
    
 
+   //그림자를 받는 인트로 화면 바닥
    const introPlane = new THREE.PlaneGeometry( 700, 700 );
    const introPlanematerial = new THREE.MeshStandardMaterial( {color: '#EBE5D9'} );
-   introPlanematerial.metalness = 0.45
-   introPlanematerial.roughness = 0.65
+   introPlanematerial.metalness = 0.45;
+   introPlanematerial.roughness = 0.65;
    const introPlaneMesh = new THREE.Mesh( introPlane, introPlanematerial );
    introPlaneMesh.receiveShadow = true;
-   scene3.add( introPlaneMesh );
+   introScene.add( introPlaneMesh );
    introPlaneMesh.rotation.x = -Math.PI/2;
 
    //카메라 룩엣을 이용하기 위한 메쉬
    const geometryLook = new THREE.BoxGeometry( 1, 1, 1 );
    const materialLook = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
    const meshLook = new THREE.Mesh( geometryLook, materialLook );
-   scene3.add( meshLook );
-   // console.log(meshLook.position)
+   introScene.add( meshLook );
    meshLook.position.set(1,-10,-1)
 
 
-   //책 첫번째 누르면 화면전환을 위한 박스 (안보이지만 첫번째 책 위에 있음)
-   // const geometryClickOne= new THREE.BoxGeometry( 4, 1, 4 );
-   // const materialClickOne = new THREE.MeshBasicMaterial( { color: 0xffff00, opacity:0 } );
-   // const meshClickOne = new THREE.Mesh( geometryClickOne, materialClickOne );
-   // scene3.add( meshClickOne );
-   // meshClickOne.position.set(7.5,0,-4.6)
-   // meshClickOne.rotation.y = -Math.PI/3.2;
-   // meshClickOne.material.transparent = true;
-   // meshClickOne.material.opacity = 0;
-   // const clickAble = [meshClickOne]
-
-
-   const clickAble = [];
-   
+   //인트로 화면에서 동화 넘어갈 수 있도록 제작된 박스
    function createClickableBox(scene, position, rotation) {
       const geometry = new THREE.BoxGeometry(4, 4, 4);
       const material = new THREE.MeshBasicMaterial({ color: 0xffff00, opacity: 0.1, visible: false });
@@ -144,39 +136,41 @@ export default function example() {
       return mesh;
    }
 
-   // 첫 번째 오브젝트
-   const meshClickOne1 = createClickableBox(scene3, new THREE.Vector3(7.5, 1.5, -4.6), -Math.PI / 3.2);
+   //이동하는 박스 넣어두는 배열
+   const clickAble = [];
+
+   // 첫 번째 -> 숲
+   const meshClickOne1 = createClickableBox(introScene, new THREE.Vector3(7.5, 1.5, -4.6), -Math.PI / 3.2);
    clickAble.push(meshClickOne1);
 
-   // 두 번째 오브젝트
-   const meshClickOne2 = createClickableBox(scene3, new THREE.Vector3(10, 1.5, 0.6),  Math.PI / 2);
+   // 두 번째 -> 바다
+   const meshClickOne2 = createClickableBox(introScene, new THREE.Vector3(10, 1.5, 0.6),  Math.PI / 2);
    clickAble.push(meshClickOne2);
 
-   // 세 번째 오브젝트
-   const meshClickOne3 = createClickableBox(scene3, new THREE.Vector3(10.2, 1.5, 6.6), Math.PI / 4);
+   // 세 번째 -> 밤
+   const meshClickOne3 = createClickableBox(introScene, new THREE.Vector3(10.2, 1.5, 6.6), Math.PI / 4);
    clickAble.push(meshClickOne3);
 
 
+   //인트로 화면의 버튼들
    const introStart = document.querySelector('.introStart')
    const introLookSave = document.querySelector('.introLookSave')
 
    introStart.addEventListener('click', function(){
       cameraMove({x:2, y: 5, z:3},{x:12, y: -3, z:0});
-      // sceneChange();
    });
    introLookSave.addEventListener('click', function(){
       introStep = 'selectStory'
       uiControl(introStep)
    });
 
-
-
    // 인트로 화면 끝 이후 그리기 화면 이동--------------------------------------------------------------------
 
-   // Scene 설정
+
+   // 동화책 그리기 Scene 설정
    const scene = new THREE.Scene();
 
-   // 환경설정
+   // selectMap의 변수에 따라서 배경화면을 선택할 수 있도록 제작
    function setupEnvironment(scene, gltfLoader, selectMap) {
       if (selectMap == 0) {
          return new Environment({
@@ -196,7 +190,7 @@ export default function example() {
       }
    }
 
-   // Camera 설정
+   // 동화책 카메라 설정
    const camera = new THREE.PerspectiveCamera(
       75,
       window.innerWidth / window.innerHeight,
@@ -208,37 +202,38 @@ export default function example() {
    camera.position.z = 0;
    scene.add(camera);
 
-   const positionToLookAt = new THREE.Vector3(0, 0, 0);
-
-   
-
 
    // 레이캐스터
    const raycaster = new THREE.Raycaster();
    const raycaster3 = new THREE.Raycaster();
-   
-
 
    // 그리기
    const clock = new THREE.Clock();
 
-
-   //녹음하고 있는지*****************
+   //동화를 녹화하고 있는지
    let record = false;
 
+   //'그림을 다 그렸어요' 버튼
    const moveStart = document.querySelector('.moveStart')
+
+   //UI 상단에 그림 단계 알려주는 UI
    const recordRap = document.querySelector('.recordRap')
    
+   //그림 단계 이전 이후로 넘어가는 UI
    const recordNext = document.querySelector('.recordNext')
    const recordPrev = document.querySelector('.recordPrev')
-   const recordDone = document.querySelector('.recordDone')
 
+   //낙서를 그리는 부분
    const drawButton = document.querySelector('.drawButton')
+
+   //마지막 동화 이름을 지어주는 UI
    const tutorial = document.querySelector('.tutorial')
 
+   //멀티 플레이 UI
    const withButton = document.querySelector('.with')
    const playWith = document.querySelector('.playWith')
    const code = document.querySelector('.code')
+
 
    withButton.addEventListener('click',() => {
       playWith.classList.remove('displayNone')
@@ -250,28 +245,16 @@ export default function example() {
       code.classList.remove('displayNone')
    })
 
-
-   const rightMove = document.querySelector('.rightMove')
-   const playWithButton = document.querySelector('.playWithButton')
    const namemake = document.querySelector('.namemake')
    const dot = document.querySelectorAll('.dot')
 
 
-
-   //모든 단계
-   let initialPositions = [[],[],[],[],[]];
-
-   // 오른쪽 플레이 버튼을 클릭하면 단계가 올라간다
+   // 다음으로 버튼을 클릭하면 단계가 올라간다
    recordNext.addEventListener('click',() => {
+      // if(state <= 4){}
+      state++;
+      rememberInitialPosition2();
 
-
-      if(state <= 4){
-
-         initialPositions[state].push(...initialPosition)
-         initialPosition.length = 0;
-
-         rememberInitialPosition();
-         
          for (let i = 0; i < circles.length; i++) {
             const circle = circles[i];
             scene.remove(circle);
@@ -281,31 +264,32 @@ export default function example() {
             scene.remove(lineMesh);
          }
       
-         putRedbox(true);
-         
-         if(state < 5){
-            dot[state].innerHTML = "<div></div>";
-         }
-         if(state == 4){
-            recordNext.classList.add('animation-shake')
-            recordNext.classList.add('recordDone')
-         }
-
-      }
-
-
-      https://threejs.org/docs/index.html#api/en/geometries/RingGeometry//
+         putblock(true);
 
       if(state == 5){
          tutorial.classList.remove('displayNone')
          namemake.classList.remove('displayNone')
          saveAsImage();
       }
-
-      state++;
-
-      console.log(initialPositions,state)
+      feedbackTopUi();
    })
+
+   //다음단계나 이전단계로 돌아갈때, 상단의 단계를 시각화하는 버튼
+   function feedbackTopUi() {
+      if(state < 5){
+         dot.forEach(function(number){
+            number.innerHTML = ""
+         })
+         for (let i = 0; i < state; i++) {
+            dot[i].innerHTML = "<div></div>";
+         }
+      }
+      if(state == 5){
+         recordNext.classList.add('animation-shake')
+         recordNext.classList.add('recordDone')
+      }
+      console.log(state)
+   }
 
    // 현재화면 캡쳐
    function saveAsImage() {
@@ -317,7 +301,6 @@ export default function example() {
           console.log(e);
           return;
       }
-      console.log(imgData)
       const canvasImage = document.getElementById('canvasImage');
       canvasImage.style.backgroundImage = `url(${imgData})`
   }
@@ -327,18 +310,17 @@ export default function example() {
       if(state < 0){
          state = 0
       }
+      feedbackTopUi();
       console.log(state)
    })
 
    // 그림을 다 그렸어요 버튼
    moveStart.addEventListener('click', () => {
+      feedbackTopUi();
       record = true;
       if(record){
       drawButton.classList.add('drawButton_move')
       drawMode = false;
-      //녹화가 시작되면 현재 플랜들의 위치를 계속 받아와서 처음과 나중을 계속 선으로 연결시켜줌
-      // setInterval(() => rememberInitialPosition2(), 3500);
-      // rememberInitialPosition2()
 
       //카메라가 중심점을 보는 코드
       orbitControls.enabled = false
@@ -349,7 +331,6 @@ export default function example() {
             camera.lookAt( new THREE.Vector3(0,0,0));
          }})
       }
-      
 
       recordRap.classList.add('moveStart_move')
       moveStart.classList.remove('moveStart_move')
@@ -377,17 +358,13 @@ export default function example() {
 
 
    //사용되는 카메라 변수 저장
-   let viewScene = scene3;
-   let viewCamera = camera3;
+   let viewScene = introScene;
+   let viewCamera = introCamera;
 
    //현재 누른 인트로의 단계는 무엇인지
    let introStep = 'intro';
-   //intro     = 처음 메뉴가 나왔을때,
-   //selectMap = 맵고르는 화면,
-   //intomap   = 맵 화면
-   //selectStory  = 동화 고르는 화면
 
-   //현대 단계에 따라서 인트로 UI 변경
+   //현제 단계에 따라서 인트로 UI 변경
    function uiControl(step){
       if(step == 'selectMap'){
          intro.classList.add('introDown')
@@ -429,15 +406,15 @@ export default function example() {
       uiControl(introStep)
 
       gsap.timeline()
-         .to(camera3.position, { duration: 1.8, x: move.x, y: move.y, z: move.z,
+         .to(introCamera.position, { duration: 1.8, x: move.x, y: move.y, z: move.z,
          onUpdate:function(){
-            camera3.lookAt( new THREE.Vector3(2,0,0));
+            introCamera.lookAt( new THREE.Vector3(2,0,0));
          }})
       gsap.timeline()
       .to(meshLook.position, {
          duration: 1.8, x: look.x, y: look.y, z: look.z,
          onUpdate:function(){
-            camera3.lookAt(meshLook.position);
+            introCamera.lookAt(meshLook.position);
          }
       });
    }
@@ -472,8 +449,8 @@ export default function example() {
          interfaceCss.classList.remove('displayNone')
       } else if (_number === 3) {
          // 메인화면
-         viewScene = scene3;
-         viewCamera = camera3;
+         viewScene = introScene;
+         viewCamera = introCamera;
          withButton.classList.remove('displayNone')
          interfaceCss.classList.add('displayNone')
          interfaceCss.classList.remove('displayBlock')
@@ -481,20 +458,33 @@ export default function example() {
       }
       
    }
-   
-   const titleButton = document.querySelector('.titleButton')
-   titleButton.addEventListener('click', () => {
-   })
 
+  
+   
+   //동화의 이름 붙이기
+   const titleButton = document.querySelector('.titleButton')
+   const namearea = document.querySelector('.namearea')
+   titleButton.addEventListener('click', () => {
+      const title = namearea.value;
+
+      db.collection('storys').doc(title).set({totalData}
+      )
+      .then(() => {
+         console.log("Document successfully written!");
+      })
+      .catch((error) => {
+         console.error("Error writing document: ", error);
+      });
+   })
 
    //유연하게 창 크기 설정
    function setSize() {
       camera.aspect = window.innerWidth / window.innerHeight;
-      camera3.aspect = window.innerWidth / window.innerHeight;
+      introCamera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
-      camera3.updateProjectionMatrix();
+      introCamera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.render(scene3, camera3);
+      renderer.render(introScene, introCamera);
    }
 
    window.addEventListener('resize', setSize);
@@ -562,7 +552,6 @@ export default function example() {
 
    // 물건 버튼
    sendButton2.addEventListener('click', () => {
-      console.log('dsadafasd')
    // 캔버스에서 그림 가져오기
       const dataURL = canvas3.children[0].toDataURL('image/png')
       let imageObj = new Image();
@@ -583,11 +572,7 @@ export default function example() {
 
       const set = objects.length - 1
       draggableObject = objects[set].mesh
-      // console.log(draggableObject,set,planes,planes[set])
-      //이게 된다
    })
-
-
 
    const houses = [];
    const buildingBox = document.querySelectorAll('.buildingBox')
@@ -615,12 +600,6 @@ export default function example() {
          draggableObject = houses[set].mesh;
       })
    })
-
-
-
-
-
-
 
    // 마우스가 움직일때
    canvas.addEventListener('mousemove', onPointerMove);
@@ -678,9 +657,9 @@ export default function example() {
    function onPointerDown(event){
       pointer.set((event.clientX / window.innerWidth) * 2 - 1, - (event.clientY/ window.innerHeight) * 2 + 1);
       raycaster.setFromCamera( pointer, camera );
-      raycaster3.setFromCamera( pointer, camera3 );
+      raycaster3.setFromCamera( pointer, introCamera );
       const intersects = raycaster.intersectObjects(scene.children, true)
-      const intersects3 = raycaster3.intersectObjects(scene3.children, true)
+      const intersects3 = raycaster3.intersectObjects(introScene.children, true)
 
       // 레이캐스터의 맨 첫번째 순서에 plane이 감지되면 그 물체를 draggableObject에 넣는다
       if (intersects.length && intersects[0].object.isDraggable) {
@@ -707,7 +686,7 @@ export default function example() {
          introStep = 'intomap'
       }else if(intersects3[0].object.id == clickAble[1].id){
          number = 1;
-         sceneChange(number);
+         sceneChange(number);tialPosition
          introStep = 'intomap'
       }else if(intersects3[0].object.id == clickAble[2].id){
          number = 2;
@@ -719,7 +698,6 @@ export default function example() {
 
 // 마우스를 땠을때
 function onPointerUp(event){
-
    if (draggableObject) {
       draggableObject.children[0].dragging = false;
       visibleOrnone (); 
@@ -727,6 +705,7 @@ function onPointerUp(event){
       draggableObject = undefined;
       console.log('이쪽에 내려놓음')
       rememberInitialPosition2();
+      makeLine();
    }
    orbitControls.enabled = true;
 }
@@ -797,54 +776,59 @@ function dragObject() {
    }
  };
 
-
       let lienMaterials = []; // lienMaterial을 배열로 관리하기 위한 변수
       let lienMaterial;
 
-      let points = [];
 
       //다 그렸어요 버튼을 누르면 처음 위치를 아래 배열에 저장한다.
       let initialPosition = [];
+      const totalData = {}
 
-      //그림을 다그렸어요 버튼을 누르면 활성화
       function rememberInitialPosition(){
             for (let i = 0; i < planes.length; i++){
-
                //현재 플랜의 수에 따라서 빈칸을 만들어준다.
-               initialPosition.push([]);
-
+               totalData[i] = {
+                  id: i,
+                  phase:{
+                     0:[],
+                     1:[],
+                     2:[],
+                     3:[],
+                     4:[]
+                  },
+                  img:null
+               };
                const position = planes[i].mesh.position
                const position2 = {...position}
-               initialPosition[i].push(position2);
+               totalData[i].phase[state].push(position2);
             }
-         putRedbox(true);
+         putblock(true);
       }
 
       const mesh3s = [];
 
       function rememberInitialPosition2(){
-
-         //포인트 비워두기
-         points = [];
          for (let i = 0; i < planes.length; i++){
-            //현재 플랜의 수에 따라서 빈칸을 만들어준다.
-            points.push([]);
-
             const position = planes[i].mesh.position
             const position2 = {...position}
-            initialPosition[i].push(position2)
+            totalData[i].phase[state].push(position2)
          }
-         
-         for (let i = 0; i < planes.length; i++){
-            points[i].push(new THREE.Vector3(initialPosition[i][initialPosition[i].length-2].x,initialPosition[i][initialPosition[i].length-2].y,initialPosition[i][initialPosition[i].length-2].z))
-            points[i].push(new THREE.Vector3(initialPosition[i][initialPosition[i].length-1].x,initialPosition[i][initialPosition[i].length-1].y,initialPosition[i][initialPosition[i].length-1].z))
-         }
+         putblock(true);
+      }
 
-         for (let i = 0; i < planes.length; i++){
-            const geometry = new THREE.BufferGeometry().setFromPoints(points[i]);
+      function makeLine(){
+        for (let i = 0; i < planes.length; i++){
+            const data1 = totalData[i].phase[state][(totalData[i].phase[state].length-2)]
+            const data2 = totalData[i].phase[state][(totalData[i].phase[state].length-1)]
+            console.log(data1.x)
+            const geometry = new THREE.BufferGeometry().setFromPoints(
+               [
+                  new THREE.Vector3(data1.x,data1.y,data1.z),
+                  new THREE.Vector3(data2.x,data2.y,data2.z)
+               ]
+            );
             const line = new MeshLine();
             line.setGeometry(geometry);
-
 
             lienMaterial = new MeshLineMaterial({
                dashArray: 0.3,
@@ -857,28 +841,26 @@ function dragObject() {
             });
 
             if (i == 0) {
-               lienMaterial.color = new THREE.Color(203/255, 253/255, 171/255);
-            } else if (i == 1) {
-               lienMaterial.color = new THREE.Color(163/255, 236/255, 207/255);
-            } else if (i == 2) {
-               lienMaterial.color = new THREE.Color(166/255, 235/255, 243/255);
+                  lienMaterial.color = new THREE.Color(203/255, 253/255, 171/255);
+               } else if (i == 1) {
+                  lienMaterial.color = new THREE.Color(163/255, 236/255, 207/255);
+               } else if (i == 2) {
+                  lienMaterial.color = new THREE.Color(166/255, 235/255, 243/255);
             }
 
-            // lienMaterial을 배열에 추가
             lienMaterials.push(lienMaterial);
 
             const mesh3 = new THREE.Mesh(line, lienMaterial);
             scene.add(mesh3);
             mesh3s.push(mesh3);
          }
-      putRedbox(true);
       }
 
       const circles = [];
 
       //현재 있던 위치에 토글을 배치
-      function putRedbox(firstOrNot){
-         for (let i = 0; i < initialPosition.length; i++){
+      function putblock(firstOrNot){
+         for (let i = 0; i < planes.length; i++){
             const geometry = new THREE.CylinderGeometry(0.3, 0.3, 0.1, 32);
             let material = new THREE.MeshLambertMaterial( { color: '#558833'} ); 
             if(i == 0){
@@ -893,15 +875,15 @@ function dragObject() {
             scene.add( circle );
 
             if(firstOrNot){
-               const boxX = initialPosition[i][initialPosition[i].length - 1].x;
-               const boxY = initialPosition[i][initialPosition[i].length - 1].y;
-               const boxZ = initialPosition[i][initialPosition[i].length - 1].z;
+               const boxX = totalData[i].phase[state][totalData[i].phase[state].length - 1].x;
+               const boxY = totalData[i].phase[state][totalData[i].phase[state].length - 1].y;
+               const boxZ = totalData[i].phase[state][totalData[i].phase[state].length - 1].z;
                circle.position.set(boxX,boxY,boxZ);
                circles.push(circle);
             }else if(!firstOrNot){
-               const boxX = initialPosition[i][0].x;
-               const boxY = initialPosition[i][0].y;
-               const boxZ = initialPosition[i][0].z;
+               const boxX = totalData[i].phase[state][0].x;
+               const boxY = totalData[i].phase[state][0].y;
+               const boxZ = totalData[i].phase[state][0].z;
                circle.position.set(boxX,boxY,boxZ);
                circles.push(circle);
             }
@@ -911,27 +893,18 @@ function dragObject() {
 
       //오른쪽 플레이 버튼, 누르면 현재 저장된 위치를 따라서 이동할 수 있도록 한다.
       const play = document.querySelector('.play')
-      play.addEventListener('click',() => {
-
-         
-         let initialPositionRemove = [];
-
-         for (let i = 0; i < planes.length; i++){
-            initialPositionRemove.push(removeDuplicates(initialPosition[i]))
-         }
-
-         console.log(initialPosition, initialPositionRemove)
-         
+      play.addEventListener('click',() => {       
          const timelines = [];
+
          for (let i = 0; i < planes.length; i++){
             let nIntervId;
             timelines.push(gsap.timeline());
-               for (let e = 0; e < initialPositionRemove[i].length; e++){
-                  timelines[i].to(planes[i].mesh.position, { duration: 1.0, x:initialPositionRemove[i][e].x ,y:initialPositionRemove[i][e].y ,z:initialPositionRemove[i][e].z });
+               for (let e = 0; e < totalData[i].phase[state].length; e++){
+                  timelines[i].to(planes[i].mesh.position, { duration: 1.0, x:totalData[i].phase[state][e].x ,y:totalData[i].phase[state][e].y ,z:totalData[i].phase[state][e].z });
                }
 
+            //각 palne마다 애니메이션을 재생
             const result = planes[i];
-            console.log(result)
             result.actions[0].stop();
             result.actions[3].play();
                
@@ -945,18 +918,17 @@ function dragObject() {
                result.actions[0].play();
                clearInterval(nIntervId);
              })
-            
          }
       })
 
-      //오른쪽 리턴버튼, 누르면 리셋되고 처음 위치로 돌아간다.
+      //오른쪽 리턴버튼, 누르면 리셋되고 처음 위치로 돌아간다. //현재 state 삭제 기능 추가
       const reuse = document.querySelector('.reuse')
       reuse.addEventListener('click',() => {
 
          const tl = []
          for (let i = 0; i < planes.length; i++){
                tl.push(gsap.timeline());
-               tl[i].to(planes[i].mesh.position, { duration: 0.5, x:initialPosition[i][0].x ,y:initialPosition[i][0].y ,z:initialPosition[i][0].z });
+               tl[i].to(planes[i].mesh.position, { duration: 0.5, x:totalData[i].phase[state][0].x ,y:totalData[i].phase[state][0].y ,z:totalData[i].phase[state][0].z });
          }
          
          for (let i = 0; i < circles.length; i++) {
@@ -968,19 +940,17 @@ function dragObject() {
             scene.remove(lineMesh);
          }
 
-         putRedbox(false);
+         putblock(false);
 
          //여기에는 처음으로 돌아가기
          for (let i = 0; i < planes.length; i++){
-            initialPosition[i].splice(1);
+            totalData[i].phase[state].splice(1);
          }
-         console.log(initialPosition)
-         circles.length = 0;
       })
 
 
-      let dusts = [];
       //먼지
+      let dusts = [];
       function Dust(){
          for (let i = 0; i < planes.length; i++){
             const geometry = new THREE.SphereGeometry(0.1, 18, 18);
@@ -1003,7 +973,6 @@ function dragObject() {
 
             scene.add(dust);
             dusts.push(dust)
-            console.log(dusts)
          }
       }
 
@@ -1081,7 +1050,7 @@ function dragObject() {
     }
 
    
-   const preventDragClick = new PreventDragClick(canvas);
+   // const preventDragClick = new PreventDragClick(canvas);
    
    draw();
 }
