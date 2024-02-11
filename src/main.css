@@ -785,6 +785,11 @@ input:focus { outline: none; }
    background-color: white !important;
 }
 
+.tooltip{
+   background-color: #00AAEF;
+   transform: translateX(-120px);
+}
+
 
 @keyframes fadein {
    from {

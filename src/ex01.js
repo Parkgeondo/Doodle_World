@@ -5,6 +5,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 import { DragControls } from "three/examples/jsm/controls/DragControls"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { PreventDragClick } from "./PreventDragClick"
+import {CSS2DRenderer, CSS2DObject} from 'three/examples/jsm/renderers/CSS2DRenderer'
 import gsap from 'gsap'
 import { MeshLine, MeshLineMaterial, MeshLineRaycast } from 'three.meshline';
 
@@ -35,6 +36,30 @@ export default function example() {
       })
    })
 
+   //2D 렌더 기본값
+   const labelRenderer = new CSS2DRenderer();
+   labelRenderer.setSize(window.innerWidth,window.innerHeight);
+   labelRenderer.domElement.style.position = 'absolute';
+   labelRenderer.domElement.style.top = '0px';
+   labelRenderer.domElement.style.pointerEvents = 'none'
+   document.body.appendChild(labelRenderer.domElement);
+
+   function createCpointMesh(name, x, y, z){
+      const geo = new THREE.SphereBufferGeometry(0.1);
+      const mat = new THREE.MeshBasicMaterial({color:0xFF0000})
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.position.set(x,y,z);
+      mesh.name = name;
+      return mesh;
+   }
+
+   const group = new THREE.Group();
+
+   const sphereMesh1 = createCpointMesh('sphereMesh1', 0, 0, 0);
+   group.add(sphereMesh1);
+
+
+
    // three.js 캔버스
    const canvas = document.querySelector('#three-canvas');
 
@@ -52,6 +77,7 @@ export default function example() {
 
    // 인트로 화면 시작--------------------------------------------------------------------
    const introScene = new THREE.Scene();
+
    introScene.background = new THREE.Color('#EBE5D9');
 
    // Camera
@@ -190,6 +216,7 @@ export default function example() {
       }
    }
 
+
    // 동화책 카메라 설정
    const camera = new THREE.PerspectiveCamera(
       75,
@@ -251,10 +278,16 @@ export default function example() {
 
    // 다음으로 버튼을 클릭하면 단계가 올라간다
    recordNext.addEventListener('click',() => {
-      // if(state <= 4){}
       state++;
-      rememberInitialPosition2();
 
+      if(state <= 4){
+         for (let i = 0; i < planes.length; i++){
+            totalData[i].phase[state].splice(0);
+         }
+      }
+
+      if(state <= 4){
+         rememberInitialPosition2();
          for (let i = 0; i < circles.length; i++) {
             const circle = circles[i];
             scene.remove(circle);
@@ -263,10 +296,11 @@ export default function example() {
             const lineMesh = mesh3s[i];
             scene.remove(lineMesh);
          }
-      
          putblock(true);
+      }
 
-      if(state == 5){
+
+      if(state == 6){
          tutorial.classList.remove('displayNone')
          namemake.classList.remove('displayNone')
          saveAsImage();
@@ -274,9 +308,49 @@ export default function example() {
       feedbackTopUi();
    })
 
+   recordPrev.addEventListener('click',() => {
+      state--
+
+      if(state < 0){
+         state = 0
+      }
+
+      const tl = []
+
+      // 각 종이캐릭터를 첫번째 배열로 이동시키기
+      for (let i = 0; i < planes.length; i++){
+         tl.push(gsap.timeline());
+         tl[i].to(planes[i].mesh.position, { duration: 0.5, x:totalData[i].phase[state][0].x ,y:totalData[i].phase[state][0].y ,z:totalData[i].phase[state][0].z });
+      }
+
+      for (let i = 0; i < planes.length; i++){
+         totalData[i].phase[state].splice(1);
+      }
+
+      if(state <= 4){
+         for (let i = 0; i < circles.length; i++) {
+            const circle = circles[i];
+            scene.remove(circle);
+         }
+         for (let i = 0; i < mesh3s.length; i++) {
+            const lineMesh = mesh3s[i];
+            scene.remove(lineMesh);
+         }
+      }
+
+      putblock(false);
+
+      for (let i = 0; i < planes.length; i++){
+         console.log(totalData[i].phase[state], planes[i].mesh.position)
+      }
+
+      feedbackTopUi();
+   })
+
+
    //다음단계나 이전단계로 돌아갈때, 상단의 단계를 시각화하는 버튼
    function feedbackTopUi() {
-      if(state < 5){
+      if(state <= 5){
          dot.forEach(function(number){
             number.innerHTML = ""
          })
@@ -287,8 +361,11 @@ export default function example() {
       if(state == 5){
          recordNext.classList.add('animation-shake')
          recordNext.classList.add('recordDone')
+      }else{
+         recordNext.classList.remove('animation-shake')
+         recordNext.classList.remove('recordDone')
       }
-      console.log(state)
+      console.log(state, totalData)
    }
 
    // 현재화면 캡쳐
@@ -304,15 +381,6 @@ export default function example() {
       const canvasImage = document.getElementById('canvasImage');
       canvasImage.style.backgroundImage = `url(${imgData})`
   }
-
-   recordPrev.addEventListener('click',() => {
-      state--
-      if(state < 0){
-         state = 0
-      }
-      feedbackTopUi();
-      console.log(state)
-   })
 
    // 그림을 다 그렸어요 버튼
    moveStart.addEventListener('click', () => {
@@ -485,6 +553,8 @@ export default function example() {
       introCamera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
       renderer.render(introScene, introCamera);
+
+      labelRenderer.setSize(this.window.innerWidth, this.window.innerHeight);
    }
 
    window.addEventListener('resize', setSize);
@@ -520,8 +590,6 @@ export default function example() {
    function getRandomInt(max) {
       return (Math.random()-0.5) * max;
     }
-   
-
 
    // 버튼
    sendButton.addEventListener('click', () => {
@@ -663,8 +731,11 @@ export default function example() {
 
       // 레이캐스터의 맨 첫번째 순서에 plane이 감지되면 그 물체를 draggableObject에 넣는다
       if (intersects.length && intersects[0].object.isDraggable) {
-         draggableObject = intersects[0].object.parent;
-         draggableObject.children[0].dragging = true;
+      // state가 5가 되면 선택이 되지 않도록
+         if(state !== 5){
+            draggableObject = intersects[0].object.parent;
+            draggableObject.children[0].dragging = true;
+         }
       }
 
    if (draggableObject) {
@@ -976,11 +1047,20 @@ function dragObject() {
          }
       }
 
-
-
+   
+      scene.add(group);
+      const p = document.createElement('p');
+      p.className = 'tooltip';
+      const pContainer = document.createElement('div');
+      pContainer.appendChild(p);
+      const cPointeLabel = new CSS2DObject(pContainer);
+      p.textContent = 'asd'
+      scene.add(cPointeLabel);
 
       //반복적으로 렌더링 해주기
       function draw() {
+
+         labelRenderer.render(scene, camera);
 
          //만약 그림이 하나라도 있으면, 그림을 완성하기 버튼이 나타난다
          if(planes.length > 0 && !record){
@@ -1028,27 +1108,6 @@ function dragObject() {
          renderer.render(viewScene, viewCamera);
          renderer.setAnimationLoop(draw);
    }
-   
-
-   function removeDuplicates(initialPosition) {
-      const initialPositionNew = [];
-      let prevElement = null;
-      
-      for (const position of initialPosition) {
-        if (
-          !prevElement ||
-          position.x !== prevElement.x ||
-          position.y !== prevElement.y ||
-          position.z !== prevElement.z
-        ) {
-          initialPositionNew.push(position);
-        }
-        prevElement = position;
-      }
-    
-      return initialPositionNew;
-    }
-
    
    // const preventDragClick = new PreventDragClick(canvas);
    
