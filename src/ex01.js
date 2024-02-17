@@ -28,11 +28,13 @@ import intro2 from './intro';
 
 export default function example() {
 
+   let dbData = null;
+
    //파이어 베이스 부분
    const db = firebase.firestore();
    db.collection('storys').get().then((data)=>{
       data.forEach((doc)=>{
-         console.log(doc.data())
+      //   dbData[i](doc.data());
       })
    })
 
@@ -43,21 +45,6 @@ export default function example() {
    labelRenderer.domElement.style.top = '0px';
    labelRenderer.domElement.style.pointerEvents = 'none'
    document.body.appendChild(labelRenderer.domElement);
-
-   function createCpointMesh(name, x, y, z){
-      const geo = new THREE.SphereBufferGeometry(0.1);
-      const mat = new THREE.MeshBasicMaterial({color:0xFF0000})
-      const mesh = new THREE.Mesh(geo, mat);
-      mesh.position.set(x,y,z);
-      mesh.name = name;
-      return mesh;
-   }
-
-   const group = new THREE.Group();
-
-   const sphereMesh1 = createCpointMesh('sphereMesh1', 0, 0, 0);
-   group.add(sphereMesh1);
-
 
 
    // three.js 캔버스
@@ -185,10 +172,23 @@ export default function example() {
    introStart.addEventListener('click', function(){
       cameraMove({x:2, y: 5, z:3},{x:12, y: -3, z:0});
    });
+
    introLookSave.addEventListener('click', function(){
       introStep = 'selectStory'
       uiControl(introStep)
+      playScene();
+      //모든 UI를 없애기
    });
+
+   //스토리 재생 화면
+   function playScene(){
+      //누른 책의 id를 가져온다.
+      //id를 data에 가져온다.
+      //그 data를 맵에 씌워온다.
+
+      console.log(dbData)
+      sceneChange(0);
+   }
 
    // 인트로 화면 끝 이후 그리기 화면 이동--------------------------------------------------------------------
 
@@ -252,6 +252,7 @@ export default function example() {
 
    //낙서를 그리는 부분
    const drawButton = document.querySelector('.drawButton')
+   const drawButton_emotion = document.querySelector('.drawButton_emotion')
 
    //마지막 동화 이름을 지어주는 UI
    const tutorial = document.querySelector('.tutorial')
@@ -306,6 +307,12 @@ export default function example() {
          saveAsImage();
       }
       feedbackTopUi();
+      
+      if(state <= 4){
+         for (let i = 0; i < planes.length; i++){
+            emotions[i].handleEmotionClick('none', false);
+         }
+      }
    })
 
    recordPrev.addEventListener('click',() => {
@@ -337,13 +344,7 @@ export default function example() {
             scene.remove(lineMesh);
          }
       }
-
       putblock(false);
-
-      for (let i = 0; i < planes.length; i++){
-         console.log(totalData[i].phase[state], planes[i].mesh.position)
-      }
-
       feedbackTopUi();
    })
 
@@ -382,12 +383,156 @@ export default function example() {
       canvasImage.style.backgroundImage = `url(${imgData})`
   }
 
+  const emotions = [];
+
+
+  function createEmotion(id, x,y,z){
+
+      const img1 = document.createElement('img');
+      const img2 = document.createElement('img');
+      const img3 = document.createElement('img');
+      const img4 = document.createElement('img');
+      const img5 = document.createElement('img');
+      const img6 = document.createElement('img');
+
+      const img_default = document.createElement('img');
+
+      img1.src = './images/emotion/emotion_smile.png';
+      img2.src = './images/emotion/emotion_angry.png';
+      img3.src = './images/emotion/emotion_sad.png';
+      img4.src = './images/emotion/emotion_shock.png';
+      img5.src = './images/emotion/emotion_just.png';
+      img6.src = './images/emotion/emotion_none.png';
+
+      img1.addEventListener('click', () => handleEmotionClick('smile'));
+      img2.addEventListener('click', () => handleEmotionClick('angry'));
+      img3.addEventListener('click', () => handleEmotionClick('sad'));
+      img4.addEventListener('click', () => handleEmotionClick('shock'));
+      img5.addEventListener('click', () => handleEmotionClick('just'));
+      img6.addEventListener('click', () => handleEmotionClick('none'));
+
+      img_default.src = './images/emotion/emotion_none.png';
+
+      const imgContainer = document.createElement('div');
+
+      const open = document.createElement('div');
+
+      const imgContainer_inner = document.createElement('div');
+
+      imgContainer.appendChild(imgContainer_inner);
+      imgContainer.appendChild(open);
+
+      imgContainer_inner.appendChild(img1);
+      imgContainer_inner.appendChild(img2);
+      imgContainer_inner.appendChild(img3);
+      imgContainer_inner.appendChild(img4);
+      imgContainer_inner.appendChild(img5);
+      imgContainer_inner.appendChild(img6);
+
+      open.appendChild(img_default);
+
+      imgContainer.className = 'emotion';
+      imgContainer_inner.className = 'emotion_inner';
+      open.className = 'emotion_inner_defult';
+
+      const cImgLabel = new CSS2DObject(imgContainer);
+
+      cImgLabel.position.set(x,y,z);
+
+      scene.add(cImgLabel);
+
+      open.style.pointerEvents = 'auto'
+      imgContainer.style.pointerEvents = 'auto'
+
+      const editEmotion = document.querySelector('.editEmotion')
+
+   
+      //edit mode none <-> edit
+      let mode = 'none';
+
+      //edit mode none <-> edit
+      let emotion = 'none';
+
+
+        //이걸 사용했을때, 말풍선이 보일 수 있도록
+      editEmotion.addEventListener('click', () => {
+         if(mode == 'edit'){
+            mode = 'none'
+         }else if(mode == 'none'){
+            mode = 'edit'
+         }else if(mode == 'selectEmotion'){
+            mode = 'none'
+         }else if(mode == 'selected'){
+            mode = 'none'
+         }
+         UIControl(mode)
+      })
+
+      open.addEventListener('click', () => {
+         mode = 'selectEmotion';
+         UIControl(mode)
+      })
+
+      function UIControl(mode){
+         const imgContainer_inner_All = document.querySelectorAll('.emotion_inner')
+         const open_All = document.querySelectorAll('.emotion_inner_defult')
+
+         console.log(mode)
+
+         if(mode == 'edit'){
+            imgContainer_inner.classList.remove('animation_emotion');
+            open.classList.add('animation_emotion');
+         }else if(mode =='none'){
+            imgContainer_inner.classList.remove('animation_emotion');
+            open.classList.remove('animation_emotion');
+         }else if(mode =='selectEmotion'){
+            imgContainer_inner_All.forEach((container) => {
+               container.classList.remove('animation_emotion');
+            })
+            open_All.forEach((container) => {
+               container.classList.add('animation_emotion');
+            })
+            imgContainer_inner.classList.add('animation_emotion');
+            open.classList.remove('animation_emotion');
+         }else if(mode =='selected'){
+            imgContainer_inner.classList.remove('animation_emotion');
+            open.classList.add('animation_emotion');
+         }
+      }
+
+      function handleEmotionClick(emotionType, show) {
+         emotion = emotionType;
+         //각 위치에 맞는 감정을 넣기
+         for (let i = 0; i < planes.length; i++){
+            totalData[i].emotions[state] = emotion;
+         }
+         //각 위치에 맞는 감정을 이미지로 표현
+         const text = `./images/emotion/emotion_${emotion}.png`
+         img_default.src = text;
+         if(mode =='selectEmotion'){
+            mode = 'selected';
+            UIControl(mode);
+         }
+       }
+
+       const emotionObject = {
+         id,
+         cImgLabel,
+         emotion,
+         handleEmotionClick
+      }
+
+      emotions.push(emotionObject);
+   }
+
+
    // 그림을 다 그렸어요 버튼
    moveStart.addEventListener('click', () => {
       feedbackTopUi();
       record = true;
       if(record){
       drawButton.classList.add('drawButton_move')
+      drawButton_emotion.classList.remove('drawButton_move')
       drawMode = false;
 
       //카메라가 중심점을 보는 코드
@@ -402,12 +547,32 @@ export default function example() {
 
       recordRap.classList.add('moveStart_move')
       moveStart.classList.remove('moveStart_move')
-      rememberInitialPosition()
+      rememberInitialPosition();
+
+      //이걸 사용했을때, 말풍선이 생성할 수 있도록
+      for (let i = 0; i < planes.length; i++){
+         createEmotion(i, planes[i].mesh.position.x,planes[i].mesh.position.y+1.8, planes[i].mesh.position.z)
+     }
+
+     //0단계 감정 생성
+     for (let i = 0; i < planes.length; i++){
+         emotions[i].handleEmotionClick('none');
+      }
    })
 
+   //말풍선의 위치를 추적
+   function updateEmotionsPositions() {
+      emotions.forEach((emotion) => {
+         const plane = planes[emotion.id];
+         if(plane){
+            const { x, y, z } = plane.mesh.position;
+            emotion.cImgLabel.position.set(x, y + 1.8, z);
+         }
+      })
+   }
+
+
    let drawMode = false;
-
-
 
    const intro = document.querySelector('.intro')
    const backButton = document.querySelector('.backButton')
@@ -421,8 +586,6 @@ export default function example() {
    showAll.addEventListener('click', function(){
       carousel.classList.add('carousel_move')
    })
-
-
 
 
    //사용되는 카메라 변수 저장
@@ -852,7 +1015,6 @@ function dragObject() {
 
 
       //다 그렸어요 버튼을 누르면 처음 위치를 아래 배열에 저장한다.
-      let initialPosition = [];
       const totalData = {}
 
       function rememberInitialPosition(){
@@ -867,7 +1029,14 @@ function dragObject() {
                      3:[],
                      4:[]
                   },
-                  img:null
+                  img:null,
+                  emotions:{
+                     0:null,
+                     1:null,
+                     2:null,
+                     3:null,
+                     4:null,
+                  }
                };
                const position = planes[i].mesh.position
                const position2 = {...position}
@@ -1046,16 +1215,8 @@ function dragObject() {
             dusts.push(dust)
          }
       }
-
    
-      scene.add(group);
-      const p = document.createElement('p');
-      p.className = 'tooltip';
-      const pContainer = document.createElement('div');
-      pContainer.appendChild(p);
-      const cPointeLabel = new CSS2DObject(pContainer);
-      p.textContent = 'asd'
-      scene.add(cPointeLabel);
+
 
       //반복적으로 렌더링 해주기
       function draw() {
@@ -1098,6 +1259,9 @@ function dragObject() {
                }
             }
          }
+
+         // 감정상태가 따라다닐 수 있도록
+         updateEmotionsPositions();
 
          // 모든 lienMaterial에 대해 dashOffset 값을 변경
          for (let i = 0; i < lienMaterials.length; i++) {

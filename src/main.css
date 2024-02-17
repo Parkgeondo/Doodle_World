@@ -248,7 +248,7 @@ body {
    top: 60px;
 }
 
-.drawButton{
+.drawButton, .drawButton_emotion{
    left: 60px;
    bottom: 60px;
    position: absolute;
@@ -348,6 +348,12 @@ body {
    width: 120px;
    height: 125px;
 }
+.editEmotion{
+   background-image: url(./images/UI/emotion.png);
+   width: 120px;
+   height: 125px;
+}
+
 
 .step{
    position: absolute;
@@ -784,10 +790,37 @@ input:focus { outline: none; }
    background-size: cover;
    background-color: white !important;
 }
+x
+.emotion{z-index: 1;}
 
-.tooltip{
-   background-color: #00AAEF;
-   transform: translateX(-120px);
+.emotion_inner, .emotion_inner_defult{
+   position: absolute;
+   display: flex;
+   padding: 20px;
+   background-color: #2a2a2a;
+   border-radius: 12px;
+   gap: 12px;
+   transition: all 0.4s;
+   transition-timing-function: cubic-bezier(0.730, 0.080, 0.080, 1.195);
+}
+
+.emotion_inner{
+   transform: translate(-50%, -50%) scale(0%);
+}
+.emotion_inner_defult{
+   transform: translate(-50%, -50%) scale(0%);
+}
+
+.animation_emotion{
+   transform: translate(-50%, -50%) scale(100%);
+}
+.animation_emotion2{
+   transform: translate(-50%, -50%) scale(0%);
+}
+
+.emotion img{
+   flex: 1;
+   width: 80px;
 }
 
 
@@ -851,6 +884,9 @@ input:focus { outline: none; }
    100%{
    }
 }
+
+/* 이모션 */
+
 
 .displayNone{display: none;}
 .displayBlock{display: block;}
