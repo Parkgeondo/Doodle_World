@@ -37,6 +37,9 @@ body {
    transition: all 0.4s ease-in-out;
    /* display: none; */
 }
+
+
+/* 멀티플레이 UI */
 .with{
    z-index: 999;
    position: absolute;
@@ -45,9 +48,11 @@ body {
    cursor: pointer;
 }
 
+
 .rightMove{
    right: -300px;
 }
+
 
 .introDown{
    bottom: -400px;
@@ -57,6 +62,8 @@ body {
    width: 300px;
    height: 307px;
 }
+
+/* 인트로 화면의 버튼들 */
 .introStart{
    background-image: url(./images/UI/Button.png);
    background-size: cover;
@@ -68,13 +75,13 @@ body {
    background-position: center;
 }
 
+/* 인트로 화면의 버튼들 */
 .carousel{
    position: absolute;
-   z-index: 999;
+   z-index: 998;
    bottom: -100vh;
    transition: all 0.4s ease-in-out;
    background-color: #ADE0A7;
-
 }
 
 .carousel_move{
@@ -272,7 +279,6 @@ body {
    cursor: pointer;
 }
 
-
 .moveStart{
    left: 50%;
    transform: translateX(-50%);
@@ -286,10 +292,11 @@ body {
    transition: all 0.3s ease-in-out;
    cursor: pointer;
    background-image: url(./images/UI/DrawNext.png);
+   pointer-events: auto;   
 }
-/*그림 배치가 다 완성되면 누르는 버튼*/
 
-.recordRap{
+/*녹화시 다음으로 가는 버튼과, 동화 재생시 버튼을 묶어놓은 UI*/
+.recordRap, .playRap{
    left: 50%;
    transform: translateX(-50%);
    bottom: -160px;
@@ -300,8 +307,8 @@ body {
    display: flex;
    gap: 12px;
    cursor: pointer;
-
 }
+
 .recordNext, .recordPrev{
    font-size: 20px;
    line-height: 98px;
@@ -315,6 +322,27 @@ body {
    background-image: url(./images/UI/prev.png);
 }
 
+.playNext, .playPrev{
+   font-size: 20px;
+   line-height: 98px;
+   width: 281px;
+   height: 99px;
+   border-radius: 100px;
+   color: white;
+   font-weight: 600;
+   pointer-events: auto;
+   cursor: pointer;
+   background-image: url(./images/UI/prev.png);
+}
+
+.playPrev{
+   background-image: url(./images/UI/prev.png);
+}
+.playNext{
+   background-image: url(./images/UI/next.png);
+}
+
+
 .recordNext{
    background-image: url(./images/UI/next.png);
 }
@@ -324,7 +352,7 @@ body {
 }
 
 .moveStart_move{
-   bottom: 80px;
+   bottom: 80px !important;
 }
 
 .moveStart_noneVisible{
@@ -603,9 +631,7 @@ body {
    z-index: 99;
 }
 
-.moveStart{
-   pointer-events: auto;   
-}
+
 
 /* 튜토리얼 */
 .tutorial{
@@ -790,7 +816,7 @@ input:focus { outline: none; }
    background-size: cover;
    background-color: white !important;
 }
-x
+
 .emotion{z-index: 1;}
 
 .emotion_inner, .emotion_inner_defult{

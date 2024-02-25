@@ -9,6 +9,21 @@
    <title>Document</title>
    <link rel="stylesheet" href="./main.css">
    <script src="sketch.js"></script>
+   <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
+   <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-firestore.js"></script>
+   <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-storage.js"></script>
+   <script>
+      const firebaseConfig = {
+          apiKey: "AIzaSyB4UIZAuBZ0FQdWYwXn0YVu7Cc7685nJTo",
+          authDomain: "doodle-world-3096b.firebaseapp.com",
+          databaseURL: "https://doodle-world-3096b-default-rtdb.firebaseio.com",
+          projectId: "doodle-world-3096b",
+          storageBucket: "doodle-world-3096b.appspot.com",
+          messagingSenderId: "962694235252",
+          appId: "1:962694235252:web:0ca4664f5fa03a77463d21"
+       };
+    firebase.initializeApp(firebaseConfig);
+ </script>
 
 </head>
 <body>
@@ -27,96 +42,6 @@
    <div class="showAll"></div>
    <div class="carousel">
       <div class="showBook">
-         <div class="showBooks">
-            <div class="cards">
-               <div class="card">
-                  <img class="thum" src="./images/UI/img5.png" alt="" draggable="false">
-                  <div class="title">콩쥐 팥쥐</div>
-                  <div class="time">12초</div>
-                  <img class="trash" src="./images/UI/trash.png" alt="">
-               </div>
-               <div class="card">
-                  <img class="thum" src="./images/UI/img4.png" alt="" draggable="false">
-                  <div class="title">슬픈 놀부</div>
-                  <div class="time">15초</div>
-                  <img class="trash" src="./images/UI/trash.png" alt="">
-               </div>
-               <div class="card">
-                  <img class="thum" src="./images/UI/img3.png" alt="" draggable="false">
-                  <div class="title">홍부리 영감</div>
-                  <div class="time">10초</div>
-                  <img class="trash" src="./images/UI/trash.png" alt="">
-               </div>
-               <div class="card">
-                  <img class="thum" src="./images/UI/img2.png" alt="" draggable="false">
-                  <div class="title">콩쥐 팥쥐</div>
-                  <div class="time">6초</div>
-                  <img class="trash" src="./images/UI/trash.png" alt="">
-               </div>
-               <div class="card">
-                  <img class="thum" src="./images/UI/img1.png" alt="" draggable="false">
-                  <div class="title">집에서 나홀로</div>
-                  <div class="time">20초</div>
-                  <img class="trash" src="./images/UI/trash.png" alt="">
-               </div>
-            </div>
-         </div>
-         <div class="showBooks">
-            <div class="cards">
-               <div class="card">
-                  <img class="thum" src="./images/UI/img6.png" alt="" draggable="false">
-                  <div class="title">콩쥐 팥쥐</div>
-                  <div class="time">12초</div>
-                  <img class="trash" src="./images/UI/trash.png" alt="">
-               </div>
-               <div class="card">
-                  <img class="thum" src="./images/UI/img7.png" alt="" draggable="false">
-                  <div class="title">하늘에서 떨어진 음식</div>
-                  <div class="time">12초</div>
-                  <img class="trash" src="./images/UI/trash.png" alt="">
-               </div>
-               <div class="card">
-                  <img class="thum" src="./images/UI/img8.png" alt="" draggable="false">
-                  <div class="title">사자와 호랑이</div>
-                  <div class="time">12초</div>
-                  <img class="trash" src="./images/UI/trash.png" alt="">
-               </div>
-               <div class="card">
-                  <img class="thum" src="./images/UI/img9.png" alt="" draggable="false">
-                  <div class="title">두꺼비집 이야기</div>
-                  <div class="time">22초</div>
-                  <img class="trash" src="./images/UI/trash.png" alt="">
-               </div>
-               <div class="card">
-                  <img class="thum" src="./images/UI/img10.png" alt="" draggable="false">
-                  <div class="title">전래동화</div>
-                  <div class="time">10초</div>
-                  <img class="trash" src="./images/UI/trash.png" alt="">
-               </div>
-            </div>
-         </div>
-         <div class="showBooks">
-            <div class="cards">
-               <div class="card">
-                  <img class="thum" src="./images/UI/img11.png" alt="" draggable="false">
-                  <div class="title">아기 돼지</div>
-                  <div class="time">12초</div>
-                  <img class="trash" src="./images/UI/trash.png" alt="">
-               </div>
-               <div class="card">
-                  <img class="thum" src="./images/UI/img12.png" alt="" draggable="false">
-                  <div class="title">왕자님과 공주님</div>
-                  <div class="time">17초</div>
-                  <img class="trash" src="./images/UI/trash.png" alt="">
-               </div>
-               <div class="card">
-                  <img class="thum" src="./images/UI/img13.png" alt="" draggable="false">
-                  <div class="title">내 이름은 최용사</div>
-                  <div class="time">14초</div>
-                  <img class="trash" src="./images/UI/trash.png" alt="">
-               </div>
-            </div>
-         </div>
       </div>
       <div class="showBook_info">
          <div class="showBook_block showBook_block_seleted"></div>
@@ -125,8 +50,9 @@
       </div>
    </div>
 
-
+   <!-- 동화책 재생버튼 -->
    <div class="interface displayNone">
+
       <div class="step">
          <div class="dot"></div>
          <div class="dot"></div>
@@ -151,19 +77,22 @@
          <div class="play sys"></div>
          <div class="reuse sys"></div>
       </div>
-
-      <!-- <div class="profile sys">
-         <div class="profile1"></div>
-         <div class="profile2"></div>
-      </div> -->
-
+      
       <!-- 아래쪽 배치 완성 버튼 -->
-      <div class="button moveStart">
-      </div>
+      <div class="button moveStart"></div>
+      <!-- 다음&이전 버튼 -->
       <div class="recordRap">
          <div class="recordPrev">
          </div>
          <div class="recordNext">
+         </div>
+      </div>
+      
+      <!-- 다음&이전 재생 버튼 -->
+      <div class="playRap">
+         <div class="playPrev">
+         </div>
+         <div class="playNext">
          </div>
       </div>
    </div>
@@ -275,23 +204,7 @@
          </div>
       </div>
    </div>
-
-   <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
-   <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-firestore.js"></script>
    <canvas id="three-canvas"></canvas>
-
-   <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyB4UIZAuBZ0FQdWYwXn0YVu7Cc7685nJTo",
-            authDomain: "doodle-world-3096b.firebaseapp.com",
-            databaseURL: "https://doodle-world-3096b-default-rtdb.firebaseio.com",
-            projectId: "doodle-world-3096b",
-            storageBucket: "doodle-world-3096b.appspot.com",
-            messagingSenderId: "962694235252",
-            appId: "1:962694235252:web:0ca4664f5fa03a77463d21"
-         };
-      firebase.initializeApp(firebaseConfig);
-   </script>
    
 </body>
 </html>

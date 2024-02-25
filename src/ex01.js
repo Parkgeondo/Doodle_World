@@ -28,14 +28,128 @@ import intro2 from './intro';
 
 export default function example() {
 
-   let dbData = null;
-
+   let dbData = [];
+   let cardContainer = null;
+   //동화카드 저장된 캐러셀
+   const showBook = document.querySelector('.showBook');
+  
    //파이어 베이스 부분
    const db = firebase.firestore();
    db.collection('storys').get().then((data)=>{
+      //데이터 받아오기
       data.forEach((doc)=>{
-      //   dbData[i](doc.data());
+         dbData.push(doc.data());
       })
+      cardContainer = Math.floor(dbData.length / 5 + 1);
+      for(let i = 0; i < cardContainer; i++){
+         const showBooks = document.createElement( "div" );
+         showBooks.className = 'showBooks';
+         showBook.append(showBooks);
+         const cards = document.createElement( "div" );
+         cards.className = 'cards';
+         showBooks.append(cards);
+      }
+      for(let i = 0; i < dbData.length; i++){
+         const number = Math.floor(i / 5);
+         const card = `<div class="card" data-id=${dbData[i].totalData.id}>
+            <img class="thum" src="${dbData[i].totalData.thum}" alt="" draggable="false">
+            <div class="title">${dbData[i].totalData.title}</div>
+            <div class="time">12초</div>
+            <img class="trash" src="./images/UI/trash.png" alt="">
+         </div>`
+         showBook.children[number].children[0].innerHTML += card;
+      }
+ 
+      const cards = document.querySelectorAll('.card');
+
+      cards.forEach(card => {
+        card.addEventListener('click', (e) => {
+          if (!e.target.classList.contains('card')) return;
+          const clickedCardId = e.target.dataset.id;
+          console.log(clickedCardId, 'here');
+          playScene();
+          let selectData = null;
+          for(let i = 0; i < dbData.length; i++){
+            if(clickedCardId == dbData[i].totalData.id){
+               selectData = dbData[i];
+            }
+          }
+          introStep = 'intomap'
+          bookPlay = true;
+          uiControl(introStep);
+          console.log(selectData);
+          createPlane(selectData);
+        });
+      
+        //chatgpt의 도움
+        card.querySelectorAll('.thum, .title, .time, .trash').forEach(child => {
+          child.addEventListener('click', (e) => {
+            const clickedCardId = card.dataset.id;
+            console.log(clickedCardId, 'here');
+          });
+        });
+      })
+
+         showBook.children[number].children[0].children.addEventListener('click', function(e){
+            console.log(e)
+            //화면전환
+         });
+      
+         //스토리 재생 화면
+         function playScene(){
+            //누른 책의 id를 가져온다.
+            //id를 data에 가져온다.
+            //그 data를 맵에 씌워온다.
+            console.log(dbData)
+            sceneChange(0);
+            introStep = 'into'
+            uiControl()
+         }
+
+   //카드에 저장된 동화를 클릭
+   // const book1 = document.querySelector('.this');
+
+    const showBook_block = document.querySelectorAll('.showBook_block')
+    const showBooks = document.querySelectorAll('.showBooks')
+
+   let startPoint = 0;
+   let clicked = false;
+   let currentPage = 0; // 현재 페이지를 추적하는 변수
+
+   const totalPages = cardContainer = Math.floor(dbData.length / 5 + 1);; // 전체 페이지 수
+
+   for(let i = 0; i < totalPages; i++){
+        showBooks[i].addEventListener('mousedown', function(e){
+            startPoint = e.clientX
+            clicked = true;
+        })
+        showBooks[i].addEventListener('mousemove', function(e){
+            if(clicked == true){
+                showBook.style.transform = `translateX(${-currentPage * 100}vw) translateX(${e.clientX - startPoint}px)`;
+                console.log(currentPage)
+            }
+        })
+        showBooks[i].addEventListener('mouseup', function(e){
+            clicked = false;
+            const distance = e.clientX - startPoint;
+
+        if (distance < -500) {
+            currentPage = (currentPage + 1) % totalPages;
+        } else if (distance > 500) {
+            currentPage = (currentPage - 1 + totalPages) % totalPages;
+        }
+
+        showBook.style.transition = 'all 0.5s';
+        showBook.style.transform = `translateX(${-currentPage * 100}vw)`;
+
+            setTimeout(()=>{
+                showBook.style.transition = `none`
+            },500)
+
+        showBook_block[i].classList.remove('showBook_block_seleted')
+        showBook_block[currentPage].classList.add('showBook_block_seleted')
+        })
+    }
    })
 
    //2D 렌더 기본값
@@ -170,25 +284,17 @@ export default function example() {
    const introLookSave = document.querySelector('.introLookSave')
 
    introStart.addEventListener('click', function(){
+      introStep = 'selectMap'
+      uiControl(introStep)
       cameraMove({x:2, y: 5, z:3},{x:12, y: -3, z:0});
    });
 
    introLookSave.addEventListener('click', function(){
       introStep = 'selectStory'
       uiControl(introStep)
-      playScene();
-      //모든 UI를 없애기
+      cameraMove({x:-0.6, y: 5, z:-4.9},{x:-0.6, y: 0, z:-14});
    });
 
-   //스토리 재생 화면
-   function playScene(){
-      //누른 책의 id를 가져온다.
-      //id를 data에 가져온다.
-      //그 data를 맵에 씌워온다.
-
-      console.log(dbData)
-      sceneChange(0);
-   }
 
    // 인트로 화면 끝 이후 그리기 화면 이동--------------------------------------------------------------------
 
@@ -243,6 +349,11 @@ export default function example() {
    //'그림을 다 그렸어요' 버튼
    const moveStart = document.querySelector('.moveStart')
 
+   //'동화를 움직여요' 버튼
+   const playNext = document.querySelector('.playNext')
+   const playPrev = document.querySelector('.playPrev')
+   const playRap = document.querySelector('.playRap')
+
    //UI 상단에 그림 단계 알려주는 UI
    const recordRap = document.querySelector('.recordRap')
    
@@ -262,6 +373,9 @@ export default function example() {
    const playWith = document.querySelector('.playWith')
    const code = document.querySelector('.code')
 
+   //플레이, 없애기
+   const controlButton = document.querySelector('.controlButton')
+
 
    withButton.addEventListener('click',() => {
       playWith.classList.remove('displayNone')
@@ -277,18 +391,54 @@ export default function example() {
    const dot = document.querySelectorAll('.dot')
 
 
+   //동화재생
+   playNext.addEventListener('click', function(e){
+      let tl = [];
+      let planeData = [];
+      for (const key in dbData[0].totalData.positionData) {
+         const i = parseInt(key, 10);
+         planeData[i] = [];
+         tl.push(gsap.timeline());
+         for (const key in dbData[0].totalData.positionData[i].phase) {
+            //각 페이즈에 있는 것들을 한곳에 모아두는 중 
+            for (let g = 0; g < dbData[0].totalData.positionData[i].phase[key].length; g++){
+               planeData[i].push(dbData[0].totalData.positionData[i].phase[key][g]);
+            }
+         };
+         for (let i = 0; i < planeData.length; i++){
+            for (let e = 0; e < planeData[i].length; e++){
+               tl[i].to(planes[i].mesh.position, { duration: 1.5, x:planeData[i][e].x,y:planeData[i][e].y ,z:planeData[i][e].z});
+            }
+            let nIntervId;
+            const result = planes[i];
+            result.actions[0].stop();
+            result.actions[3].play();
+               
+            console.log('애니메이션이 시작됐습니다.');
+            nIntervId = setInterval(Dust, 100);
+            tl[i].play()
+            .then(() => {
+               // 애니메이션이 끝날 때 실행할 코드 작성
+               console.log('애니메이션이 끝났습니다.');
+               result.actions[3].stop();
+               result.actions[0].play();
+               clearInterval(nIntervId);
+             })
+         }
+      }
+   })
+
    // 다음으로 버튼을 클릭하면 단계가 올라간다
    recordNext.addEventListener('click',() => {
       state++;
-
       if(state <= 4){
          for (let i = 0; i < planes.length; i++){
-            totalData[i].phase[state].splice(0);
+            totalData.positionData[i].phase[state].splice(0);
          }
       }
 
       if(state <= 4){
-         rememberInitialPosition2();
+         rememberInitialPosition3();
          for (let i = 0; i < circles.length; i++) {
             const circle = circles[i];
             scene.remove(circle);
@@ -327,11 +477,11 @@ export default function example() {
       // 각 종이캐릭터를 첫번째 배열로 이동시키기
       for (let i = 0; i < planes.length; i++){
          tl.push(gsap.timeline());
-         tl[i].to(planes[i].mesh.position, { duration: 0.5, x:totalData[i].phase[state][0].x ,y:totalData[i].phase[state][0].y ,z:totalData[i].phase[state][0].z });
+         tl[i].to(planes[i].mesh.position, { duration: 0.5, x:totalData.positionData[i].phase[state][0].x ,y:totalData.positionData[i].phase[state][0].y ,z:totalData.positionData[i].phase[state][0].z });
       }
 
       for (let i = 0; i < planes.length; i++){
-         totalData[i].phase[state].splice(1);
+         totalData.positionData[i].phase[state].splice(1);
       }
 
       if(state <= 4){
@@ -366,12 +516,11 @@ export default function example() {
          recordNext.classList.remove('animation-shake')
          recordNext.classList.remove('recordDone')
       }
-      console.log(state, totalData)
    }
 
    // 현재화면 캡쳐
    function saveAsImage() {
-      var imgData, imgNode;
+      let imgData;
       try {
           var strMime = "image/jpeg";
           imgData = renderer.domElement.toDataURL(strMime);
@@ -465,19 +614,17 @@ export default function example() {
          }else if(mode == 'selected'){
             mode = 'none'
          }
-         UIControl(mode)
+         emotionControl(mode)
       })
 
       open.addEventListener('click', () => {
          mode = 'selectEmotion';
-         UIControl(mode)
+         emotionControl(mode)
       })
 
-      function UIControl(mode){
+      function emotionControl(mode){
          const imgContainer_inner_All = document.querySelectorAll('.emotion_inner')
          const open_All = document.querySelectorAll('.emotion_inner_defult')
-
-         console.log(mode)
 
          if(mode == 'edit'){
             imgContainer_inner.classList.remove('animation_emotion');
@@ -504,14 +651,14 @@ export default function example() {
          emotion = emotionType;
          //각 위치에 맞는 감정을 넣기
          for (let i = 0; i < planes.length; i++){
-            totalData[i].emotions[state] = emotion;
+            totalData.positionData[i].emotions[state] = emotion;
          }
          //각 위치에 맞는 감정을 이미지로 표현
          const text = `./images/emotion/emotion_${emotion}.png`
          img_default.src = text;
          if(mode =='selectEmotion'){
             mode = 'selected';
-            UIControl(mode);
+            emotionControl(mode);
          }
        }
 
@@ -533,11 +680,9 @@ export default function example() {
       if(record){
       drawButton.classList.add('drawButton_move')
       drawButton_emotion.classList.remove('drawButton_move')
-      drawMode = false;
 
       //카메라가 중심점을 보는 코드
-      orbitControls.enabled = false
-
+      orbitControls.enabled = false;
       gsap.timeline()
          .to(camera.position, { duration: 1.8, x: 4.5, y: 4, z: 0,
          onUpdate:function(){
@@ -548,6 +693,12 @@ export default function example() {
       recordRap.classList.add('moveStart_move')
       moveStart.classList.remove('moveStart_move')
       rememberInitialPosition();
+
+      //이미지들을 totalData에 저장
+      for (let i = 0; i < planes.length; i++){
+         // totalData[i].img = null;
+         totalData.positionData[i].img = planes[i].mesh.children[0].material.map.source.data.currentSrc
+      }
 
       //이걸 사용했을때, 말풍선이 생성할 수 있도록
       for (let i = 0; i < planes.length; i++){
@@ -571,22 +722,15 @@ export default function example() {
       })
    }
 
-
-   let drawMode = false;
-
    const intro = document.querySelector('.intro')
    const backButton = document.querySelector('.backButton')
+
+   //그림그리는 버튼 모음
    const interfaceCss = document.querySelector('.interface')
 
    //동화 리스트
-
    const showAll = document.querySelector('.showAll')
    const carousel = document.querySelector('.carousel')
-
-   showAll.addEventListener('click', function(){
-      carousel.classList.add('carousel_move')
-   })
-
 
    //사용되는 카메라 변수 저장
    let viewScene = introScene;
@@ -594,21 +738,58 @@ export default function example() {
 
    //현재 누른 인트로의 단계는 무엇인지
    let introStep = 'intro';
+  
+   //현재 누른 인트로의 단계는 무엇인지
+   let bookPlay = false;
 
-   //현제 단계에 따라서 인트로 UI 변경
+   //selecMap은 동화책의 배경을 선택할 수 있도록 카메라를 움직인 상태
+   //intro은
+   //intomap은 현재 동화책을 선택하여, 배경이 어떻든 동화책 제작 화면으로 들어간 상태
+
+   //현재 단계에 따라서 인트로 UI 변경
    function uiControl(step){
       if(step == 'selectMap'){
          intro.classList.add('introDown')
          backButton.classList.add('introBackButton')
       }else if(step == 'intro'){
+         interfaceCss.classList.remove('displayBlock')
+         interfaceCss.classList.add('displayNone')
+         carousel.classList.remove('carousel_move')
          intro.classList.remove('introDown')
          backButton.classList.remove('introBackButton')
          showAll.classList.remove('showAll_move')
       }else if(step == 'selectStory'){
+         backButton.classList.add('introBackButton')
+         intro.classList.add('introDown')
          showAll.classList.add('showAll_move')
-         cameraMove({x:-0.6, y: 5, z:-4.9},{x:-0.6, y: 0, z:-14});
+      }else if(step == 'selectStory_detail'){
+         carousel.classList.add('carousel_move')
+         showAll.classList.remove('showAll_move')
+      }else if(step == 'intomap'){
+         if(bookPlay == true){
+            playRap.classList.add('moveStart_move')
+            // interfaceCss.classList.remove('displayBlock')
+            // interfaceCss.classList.add('displayNone')
+            interfaceCss.classList.add('displayBlock')
+            interfaceCss.classList.remove('displayNone')
+            drawButton.classList.add('displayNone')
+            drawButton.classList.remove('displayBlock')
+            controlButton.classList.add('displayNone')
+            controlButton.classList.remove('displayBlock')
+         }else{
+            interfaceCss.classList.add('displayBlock')
+            interfaceCss.classList.remove('displayNone')
+         }
+         carousel.classList.remove('carousel_move')
+         withButton.classList.add('displayNone')
       }
+
    }
+   //동화 리스트 올려주기
+   showAll.addEventListener('click', function(){
+      introStep = 'selectStory_detail';
+      uiControl(introStep)
+   })
 
    //홈버튼 누르면 뒤로 감
    backButton.addEventListener('click', () => {
@@ -618,7 +799,14 @@ export default function example() {
          introStep = 'intro';
          uiControl(introStep)
       } else if(introStep == 'selectMap'){
-         //다시 카메라가 뒤로 백, UI 위로 나와야함
+         cameraMove({x:-2, y: 4.8, z:6},{x:1, y: -10, z:-1})
+         introStep = 'intro';
+         uiControl(introStep)
+      }else if(introStep == 'selectStory'){
+         cameraMove({x:-2, y: 4.8, z:6},{x:1, y: -10, z:-1})
+         introStep = 'intro';
+         uiControl(introStep)
+      }else if(introStep == 'selectStory_detail'){
          cameraMove({x:-2, y: 4.8, z:6},{x:1, y: -10, z:-1})
          introStep = 'intro';
          uiControl(introStep)
@@ -630,11 +818,8 @@ export default function example() {
    //데이터를 파이어베이스에 저장
    //저장된 데이터를 재생하기
 
-
    //카메라 변환
    function cameraMove(move, look){
-      introStep = 'selectMap'
-      uiControl(introStep)
 
       gsap.timeline()
          .to(introCamera.position, { duration: 1.8, x: move.x, y: move.y, z: move.z,
@@ -649,54 +834,55 @@ export default function example() {
          }
       });
    }
-
    let environment;
-   
+
    //화면 전환 함수
    function sceneChange(_number){
-
       // intro.classList.add('displayNone')
-
       if (_number === 0) {
          environment = setupEnvironment(scene, gltfLoader, 0); // 숲속 설정
          viewScene = scene;
          viewCamera = camera;
-         withButton.classList.add('displayNone')
-         interfaceCss.classList.add('displayBlock')
-         interfaceCss.classList.remove('displayNone')
+         uiControl(introStep);
       } else if (_number === 1) {
          environment = setupEnvironment(scene, gltfLoader, 1); // 바다 설정
          viewScene = scene;
          viewCamera = camera;
-         withButton.classList.add('displayNone')
-         interfaceCss.classList.add('displayBlock')
-         interfaceCss.classList.remove('displayNone')
+         uiControl(introStep);
       } else if (_number === 2) {
          environment = setupEnvironment(scene, gltfLoader, 2); // 밤 설정
          viewScene = scene;
          viewCamera = camera;
-         withButton.classList.add('displayNone')
-         interfaceCss.classList.add('displayBlock')
-         interfaceCss.classList.remove('displayNone')
+         uiControl(introStep);
       } else if (_number === 3) {
          // 메인화면
          viewScene = introScene;
          viewCamera = introCamera;
-         withButton.classList.remove('displayNone')
-         interfaceCss.classList.add('displayNone')
-         interfaceCss.classList.remove('displayBlock')
+         uiControl(introStep);
          scene.clear();
       }
-      
    }
 
-  
+   function getRandom(min, max)
+   {
+      return Math.floor(Math.random() * (max - min + 1) + min);
+   }
    
-   //동화의 이름 붙이기
+   //동화의 이름 붙이기 & 이미지
    const titleButton = document.querySelector('.titleButton')
    const namearea = document.querySelector('.namearea')
    titleButton.addEventListener('click', () => {
       const title = namearea.value;
+      const canvasImage = document.getElementById('canvasImage');
+
+      const computedStyle = window.getComputedStyle(canvasImage);
+      const backgroundImage = computedStyle.getPropertyValue('background-image');
+
+      const imageUrl = backgroundImage.slice(4, -1).replace(/["']/g, "");
+
+      totalData.thum = imageUrl;
+      totalData.title = title;
+      totalData.id = getRandom(1, 1000);
 
       db.collection('storys').doc(title).set({totalData}
       )
@@ -745,7 +931,6 @@ export default function example() {
    // 플랜들
    const planes = [];
    const objects = [];
-   const planeGeometry = new THREE.PlaneGeometry(1, 1);
 
    const pointer = new THREE.Vector2();
 
@@ -769,15 +954,12 @@ export default function example() {
          y:0,
          z:getRandomInt(4),
          scale:0.5,
-         record
+         record,
+         id:planes.length
       });
       
       planes.push(plane);
 
-      const set = planes.length - 1
-      draggableObject = planes[set].mesh
-      // console.log(draggableObject,set,planes,planes[set])
-      //이게 된다
    })
 
 
@@ -801,8 +983,8 @@ export default function example() {
       
       objects.push(object);
 
-      const set = objects.length - 1
-      draggableObject = objects[set].mesh
+      // const set = objects.length - 1
+      // draggableObject = objects[set].mesh;
    })
 
    const houses = [];
@@ -827,8 +1009,8 @@ export default function example() {
 
          houses.push(house);
 
-         const set = houses.length - 1;
-         draggableObject = houses[set].mesh;
+         // const set = houses.length - 1;
+         // draggableObject = houses[set].mesh;
       })
    })
 
@@ -842,7 +1024,6 @@ export default function example() {
    canvas.addEventListener('dblclick', rotateBuilding);
 
    function rotateBuilding(){
-      console.log('asdsad')
     }
 
    // 손으로 조작 방식
@@ -868,12 +1049,11 @@ export default function example() {
    circle.position.y = 0.01
    circle.visible = false;
 
-   //위치 보여주기&숨기기
+   //원으로 잡은 오브젝트의 위치 보여주기&숨기기
    function visibleOrnone (){
       if(draggableObject){
          if(draggableObject == planes[0]){
             color = '#8ed158';
-            console.log('true')
             }else{
             color = '#F4F4CC';
          }
@@ -882,7 +1062,6 @@ export default function example() {
          circle.visible = false;
       }
    }
-
 
    // 마우스를 눌렀을때
    function onPointerDown(event){
@@ -902,7 +1081,6 @@ export default function example() {
       }
 
    if (draggableObject) {
-      console.log(draggableObject.children[0].subject, "를 붙잡았다", planes)   
       orbitControls.enabled = false;      
       visibleOrnone ();
       playanimationStart();
@@ -911,21 +1089,22 @@ export default function example() {
    }
 
    //인트로용 레이캐스터 
-   //클릭한 물체의 아이디를 확인해서 각 화면으로 이동 
+   //클릭한 물체의 아이디를 확인해서 각 배경에 맞는 화면으로 이동 
    if(intersects3.length && introStep == 'selectMap'){
       let number;
       if(intersects3[0].object.id == clickAble[0].id){
          number = 0;
-         sceneChange(number);
          introStep = 'intomap'
+         sceneChange(number);
+         //여기에 그림그리는 버튼이런거 추가해야함
       }else if(intersects3[0].object.id == clickAble[1].id){
          number = 1;
-         sceneChange(number);tialPosition
          introStep = 'intomap'
+         sceneChange(number);
       }else if(intersects3[0].object.id == clickAble[2].id){
          number = 2;
-         sceneChange(number);
          introStep = 'intomap'
+         sceneChange(number);
       }
    }
 }
@@ -933,13 +1112,13 @@ export default function example() {
 // 마우스를 땠을때
 function onPointerUp(event){
    if (draggableObject) {
+      rememberInitialPosition2();
       draggableObject.children[0].dragging = false;
-      visibleOrnone (); 
+      visibleOrnone(); 
       playanimationEnd();
+      makeLine();
       draggableObject = undefined;
       console.log('이쪽에 내려놓음')
-      rememberInitialPosition2();
-      makeLine();
    }
    orbitControls.enabled = true;
 }
@@ -1013,14 +1192,16 @@ function dragObject() {
       let lienMaterials = []; // lienMaterial을 배열로 관리하기 위한 변수
       let lienMaterial;
 
-
       //다 그렸어요 버튼을 누르면 처음 위치를 아래 배열에 저장한다.
-      const totalData = {}
+      const totalData = {
+         thum:null,
+         positionData:[]
+      }
 
       function rememberInitialPosition(){
             for (let i = 0; i < planes.length; i++){
                //현재 플랜의 수에 따라서 빈칸을 만들어준다.
-               totalData[i] = {
+               totalData.positionData[i] = {
                   id: i,
                   phase:{
                      0:[],
@@ -1030,6 +1211,7 @@ function dragObject() {
                      4:[]
                   },
                   img:null,
+                  title:null,
                   emotions:{
                      0:null,
                      1:null,
@@ -1040,7 +1222,7 @@ function dragObject() {
                };
                const position = planes[i].mesh.position
                const position2 = {...position}
-               totalData[i].phase[state].push(position2);
+               totalData.positionData[i].phase[state].push(position2);
             }
          putblock(true);
       }
@@ -1048,19 +1230,30 @@ function dragObject() {
       const mesh3s = [];
 
       function rememberInitialPosition2(){
+         console.log(totalData)
+         const position = planes[draggableObject.children[0].planeId].mesh.position
+         console.log(totalData)
+         delete position._gsap;
+         const position2 = {...position}
+         totalData.positionData[draggableObject.children[0].planeId].phase[state].push(position2)
+         putblock(true);
+      }
+
+      function rememberInitialPosition3(){
          for (let i = 0; i < planes.length; i++){
-            const position = planes[i].mesh.position
+            const position = planes[i].mesh.position;
+            delete position._gsap;
             const position2 = {...position}
-            totalData[i].phase[state].push(position2)
+            totalData.positionData[i].phase[state].push(position2)
          }
          putblock(true);
       }
 
       function makeLine(){
-        for (let i = 0; i < planes.length; i++){
-            const data1 = totalData[i].phase[state][(totalData[i].phase[state].length-2)]
-            const data2 = totalData[i].phase[state][(totalData[i].phase[state].length-1)]
-            console.log(data1.x)
+      //   for (let i = 0; i < planes.length; i++){
+            const planeId = draggableObject.children[0].planeId;
+            const data1 = totalData.positionData[planeId].phase[state][(totalData.positionData[planeId].phase[state].length-2)]
+            const data2 = totalData.positionData[planeId].phase[state][totalData.positionData[planeId].phase[state].length-1]
             const geometry = new THREE.BufferGeometry().setFromPoints(
                [
                   new THREE.Vector3(data1.x,data1.y,data1.z),
@@ -1080,11 +1273,11 @@ function dragObject() {
                color: '#73A651'
             });
 
-            if (i == 0) {
+            if (planeId == 0) {
                   lienMaterial.color = new THREE.Color(203/255, 253/255, 171/255);
-               } else if (i == 1) {
+               } else if (planeId == 1) {
                   lienMaterial.color = new THREE.Color(163/255, 236/255, 207/255);
-               } else if (i == 2) {
+               } else if (planeId == 2) {
                   lienMaterial.color = new THREE.Color(166/255, 235/255, 243/255);
             }
 
@@ -1093,7 +1286,7 @@ function dragObject() {
             const mesh3 = new THREE.Mesh(line, lienMaterial);
             scene.add(mesh3);
             mesh3s.push(mesh3);
-         }
+         // }
       }
 
       const circles = [];
@@ -1115,45 +1308,45 @@ function dragObject() {
             scene.add( circle );
 
             if(firstOrNot){
-               const boxX = totalData[i].phase[state][totalData[i].phase[state].length - 1].x;
-               const boxY = totalData[i].phase[state][totalData[i].phase[state].length - 1].y;
-               const boxZ = totalData[i].phase[state][totalData[i].phase[state].length - 1].z;
+               const boxX = totalData.positionData[i].phase[state][totalData.positionData[i].phase[state].length - 1].x;
+               const boxY = totalData.positionData[i].phase[state][totalData.positionData[i].phase[state].length - 1].y;
+               const boxZ = totalData.positionData[i].phase[state][totalData.positionData[i].phase[state].length - 1].z;
                circle.position.set(boxX,boxY,boxZ);
                circles.push(circle);
             }else if(!firstOrNot){
-               const boxX = totalData[i].phase[state][0].x;
-               const boxY = totalData[i].phase[state][0].y;
-               const boxZ = totalData[i].phase[state][0].z;
+               const boxX = totalData.positionData[i].phase[state][0].x;
+               const boxY = totalData.positionData[i].phase[state][0].y;
+               const boxZ = totalData.positionData[i].phase[state][0].z;
                circle.position.set(boxX,boxY,boxZ);
                circles.push(circle);
             }
          }
       }
-      
 
       //오른쪽 플레이 버튼, 누르면 현재 저장된 위치를 따라서 이동할 수 있도록 한다.
       const play = document.querySelector('.play')
-      play.addEventListener('click',() => {       
+      play.addEventListener('click',() => {      
          const timelines = [];
-
          for (let i = 0; i < planes.length; i++){
             let nIntervId;
             timelines.push(gsap.timeline());
-               for (let e = 0; e < totalData[i].phase[state].length; e++){
-                  timelines[i].to(planes[i].mesh.position, { duration: 1.0, x:totalData[i].phase[state][e].x ,y:totalData[i].phase[state][e].y ,z:totalData[i].phase[state][e].z });
+               for (let e = 0; e < totalData.positionData[i].phase[state].length; e++){
+                  timelines[i].to(planes[i].mesh.position, { duration: 1.0, x:totalData.positionData[i].phase[state][e].x ,y:totalData.positionData[i].phase[state][e].y ,z:totalData.positionData[i].phase[state][e].z });
                }
-
             //각 palne마다 애니메이션을 재생
             const result = planes[i];
             result.actions[0].stop();
             result.actions[3].play();
-               
             console.log('애니메이션이 시작됐습니다.');
             nIntervId = setInterval(Dust, 100);
             timelines[i].play()
             .then(() => {
                // 애니메이션이 끝날 때 실행할 코드 작성
                console.log('애니메이션이 끝났습니다.');
+               for (let e = 0; e < totalData.positionData[i].phase[state].length; e++){
+                  delete totalData.positionData[i].phase[state][e]._gsap;
+               }
+               console.log(totalData);
                result.actions[3].stop();
                result.actions[0].play();
                clearInterval(nIntervId);
@@ -1168,7 +1361,7 @@ function dragObject() {
          const tl = []
          for (let i = 0; i < planes.length; i++){
                tl.push(gsap.timeline());
-               tl[i].to(planes[i].mesh.position, { duration: 0.5, x:totalData[i].phase[state][0].x ,y:totalData[i].phase[state][0].y ,z:totalData[i].phase[state][0].z });
+               tl[i].to(planes[i].mesh.position, { duration: 0.5, x:totalData.positionData[i].phase[state][0].x ,y:totalData.positionData[i].phase[state][0].y ,z:totalData.positionData[i].phase[state][0].z });
          }
          
          for (let i = 0; i < circles.length; i++) {
@@ -1184,10 +1377,9 @@ function dragObject() {
 
          //여기에는 처음으로 돌아가기
          for (let i = 0; i < planes.length; i++){
-            totalData[i].phase[state].splice(1);
+            totalData.positionData[i].phase[state].splice(1);
          }
       })
-
 
       //먼지
       let dusts = [];
@@ -1216,15 +1408,30 @@ function dragObject() {
          }
       }
    
+      function createPlane(data){
+         for(const key in data.totalData.positionData){
+            console.log(data.totalData.positionData[key].phase)
+            const plane = new Plane({
+               textureLoader2,
+               scene,
+               imageSrc: data.totalData.positionData[key].img,
+               // x:0,
+               x:data.totalData.positionData[key].phase[0][0].x,
+               y:data.totalData.positionData[key].phase[0][0].y,
+               z:data.totalData.positionData[key].phase[0][0].z,
+               scale:0.5,
+               record
+            });
+            planes.push(plane);
+         }
+      }
 
 
       //반복적으로 렌더링 해주기
       function draw() {
-
          labelRenderer.render(scene, camera);
-
-         //만약 그림이 하나라도 있으면, 그림을 완성하기 버튼이 나타난다
-         if(planes.length > 0 && !record){
+         //만약 그림이 하나라도 있으면, 그림을 완성하기 버튼이 나타난다. play에선 x
+         if(planes.length > 0 && !record && !bookPlay){
             moveStart.classList.add('moveStart_move')
          }else if(planes.length == 0){
             moveStart.classList.remove('moveStart_move')

@@ -50,6 +50,7 @@ export default class Plane {
                 this.actions[3] = this.mixer.clipAction(this.mesh.animation[3]);
 
                 // 떨어지는 애니메이션
+                // if(){}
                 this.actions[2].play();
                 this.actions[2].loop = LoopOnce;
 
@@ -59,8 +60,9 @@ export default class Plane {
                 this.mesh.children[0].dragging = false;
                 this.mesh.children[0].isDraggable = true;
                 this.mesh.children[0].subject = 'plane';
+                this.mesh.children[0].planeId = info.id;
                 
-                console.log(this.mesh)
+                // console.log(this.mesh)
             }
         )
         
