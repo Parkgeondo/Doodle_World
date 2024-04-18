@@ -57,8 +57,6 @@ export default class Object {
                 this.mesh.children[0].dragging = false;
                 this.mesh.children[0].isDraggable = true;
                 this.mesh.children[0].subject = 'object';
-                
-                console.log(this.mesh)
             }
         )
         

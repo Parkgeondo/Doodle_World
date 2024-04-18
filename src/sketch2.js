@@ -7,10 +7,12 @@ export default function createP5(parentId, w, h, backgroundColor) {
         const color = document.querySelector('.color2')
         const deleteButton = document.querySelector('.delete2')
 
-        let c = "black";
-        let a = 12;
-        let lineDot = [];
-        let song;
+       //색상
+       let c = "black";
+
+       //굵기
+       let a = 12;
+       let lineDot = [];
 
         p.setup = () => {       
             p.noLoop()

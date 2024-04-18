@@ -7,10 +7,12 @@ export default function createP5(parentId, w, h, backgroundColor) {
         const color = document.querySelector('.color')
         const deleteButton = document.querySelector('.delete1')
 
+        //색상
         let c = "black";
+
+        //굵기
         let a = 12;
         let lineDot = [];
-        let song;
 
         p.setup = () => {       
             p.noLoop()
@@ -28,7 +30,6 @@ export default function createP5(parentId, w, h, backgroundColor) {
                     p.line(lineDot[0], lineDot[1],lineDot[2],lineDot[3]);
                     lineDot.splice(0, 2);
                 }
-
           }else{
             if(lineDot.length){
                 lineDot = []
@@ -44,7 +45,6 @@ export default function createP5(parentId, w, h, backgroundColor) {
             if(!e.target.dataset.size) return
             a = e.target.dataset.size
             console.log(a)
-
         }
         color.addEventListener('click', setColor)
         function setColor(e){
@@ -53,11 +53,8 @@ export default function createP5(parentId, w, h, backgroundColor) {
         }
         deleteButton.addEventListener('click', deleteDrawing)
         function deleteDrawing(e){
-            console.log('asdasd')
             p.clear();
         }
     } 
     return new P5(sketch, parentId)
 }
-
-// case를 이용하여, 색깔과 선 굵기를 정할 수 있어보인다.

@@ -220,6 +220,20 @@ body {
    bottom: -60px;
 }
 
+/*만약 데이터가 없다면*/
+.nonData{
+   font-size: 100px;
+   font-family: noto sans kr;
+   font-weight: 800;
+   text-align: center;
+   width: 100vw;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   transform: translateY(-40px);
+   color: #6BB063;
+}
+
 /* 인터페이스 CSS */
 .interface {
    z-index: 999;
@@ -322,26 +336,18 @@ body {
    background-image: url(./images/UI/prev.png);
 }
 
-.playNext, .playPrev{
+.playNext{
    font-size: 20px;
    line-height: 98px;
-   width: 281px;
-   height: 99px;
+   width: 264px;
+   height: 117px;
    border-radius: 100px;
    color: white;
    font-weight: 600;
    pointer-events: auto;
    cursor: pointer;
-   background-image: url(./images/UI/prev.png);
+   background-image: url(./images/UI/playNext.png);
 }
-
-.playPrev{
-   background-image: url(./images/UI/prev.png);
-}
-.playNext{
-   background-image: url(./images/UI/next.png);
-}
-
 
 .recordNext{
    background-image: url(./images/UI/next.png);
@@ -352,7 +358,7 @@ body {
 }
 
 .moveStart_move{
-   bottom: 80px !important;
+   bottom: 80px;
 }
 
 .moveStart_noneVisible{

@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import Tree from './tree';
 import Stone from './stone';
-import House from './House';
 
 
 export default class Environment {
@@ -154,37 +153,4 @@ export default class Environment {
         });
 
     }
-
-    
-        // const Hou = new House({
-        //    gltfLoader,
-        //    scene,
-        //    x:-9,
-        //    y:0.6,
-        //    z:4.3,
-        //    scale: 1.8,
-        //    modelSrc:'/models/stone.glb'
-        // });
-        // const Hou2 = new House({
-        //    gltfLoader,
-        //    scene,
-        //    x:-6,
-        //    y: 0.4,
-        //    z: 4.3,
-        //    scale: 0.8,
-        //    modelSrc:'/models/stone.glb'
-        // });
-
-        
-        // const plane2 = new Plane({
-        //    textureLoader2,
-        //       scene,
-        //       // geometry: planeGeometry,
-        //       imageSrc: './images/pig.png',
-        //       // imageSrc: dataURL,
-        //       x:0,
-        //       y:0,
-        //       z:0,
-        //       scale:0.5
-        //    });
 }

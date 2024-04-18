@@ -1,5 +1,5 @@
 {
-  "name": "threejs-study",
+  "name": "Doodle-world",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -8,7 +8,7 @@
     "start": "webpack serve --progress"
   },
   "keywords": [],
-  "author": "",
+  "author": "parkgeondo",
   "license": "ISC",
   "devDependencies": {
     "@babel/cli": "^7.21.0",

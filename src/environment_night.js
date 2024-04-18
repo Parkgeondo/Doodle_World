@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import Tree from './tree';
 import Stone from './stone';
-import House from './House';
 
 
 export default class Environment {

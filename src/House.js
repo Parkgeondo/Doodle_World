@@ -21,6 +21,7 @@ export default class Plane {
             info.modelSrc,
             gltf => {
 
+                this.modelSrc = info.modelSrc;
                 this.x = info.x;
                 this.y = info.y;
                 this.z = info.z;
@@ -31,8 +32,9 @@ export default class Plane {
                 this.mesh.position.set(this.x, this.y, this.z);
                 this.mesh.scale.set(this.scale, this.scale, this.scale);
 
-                const degreeToRadian = (degree) => degree * (Math.PI / 180);
-                this.mesh.rotation.set(0, info.rotation, 0);
+                this.rotationratio = info.rotation * Math.PI / 2
+
+                this.mesh.rotation.set(0, this.rotationratio, 0);
 
                 info.scene.add(this.mesh)
 
