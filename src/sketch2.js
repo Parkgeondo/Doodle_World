@@ -8,7 +8,7 @@ export default function createP5(parentId, w, h, backgroundColor) {
         const deleteButton = document.querySelector('.delete2')
 
        //색상
-       let c = "black";
+       let c = "red";
 
        //굵기
        let a = 12;
@@ -45,11 +45,19 @@ export default function createP5(parentId, w, h, backgroundColor) {
         function setSize(e){
             if(!e.target.dataset.size) return
             a = e.target.dataset.size
+            size.querySelectorAll('.cButton').forEach(function(button) {
+                button.classList.remove('active')
+            })
+            e.target.classList.add('active')
         }
         color.addEventListener('click', setColor)
         function setColor(e){
             if(!e.target.dataset.color) return
             c = e.target.dataset.color
+            color.querySelectorAll('.cButton').forEach(function(button) {
+                button.classList.remove('active')
+            })
+            e.target.classList.add('active')
         }
         deleteButton.addEventListener('click', deleteDrawing)
         function deleteDrawing(e){

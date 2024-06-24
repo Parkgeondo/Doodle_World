@@ -65,12 +65,12 @@ body {
 
 /* 인트로 화면의 버튼들 */
 .introStart{
-   background-image: url(./images/UI/Button.png);
+   background-image: url(./images/UI/Button.svg);
    background-size: cover;
    background-position: center;
 }
 .introLookSave{
-   background-image: url(./images/UI/DBButton.png);
+   background-image: url(./images/UI/DBButton.svg);
    background-size: cover;
    background-position: center;
 }
@@ -81,7 +81,31 @@ body {
    z-index: 998;
    bottom: -100vh;
    transition: all 0.4s ease-in-out;
+   /* background-image: url(./images/UI/Background.png); */
+   background-position: center left;
    background-color: #ADE0A7;
+}
+
+.background{
+   position: absolute;
+   width: 110vw;
+   height: 100vh;
+   background-size: cover;
+   background-position: center left;
+   pointer-events: none;
+}
+
+.background_1{
+   background-image: url(./images/UI/Background_1.png);
+   z-index: 2;
+}
+.background_2{
+   background-image: url(./images/UI/Background_2.png);
+   z-index: -1;
+}
+.background_3{
+   background-image: url(./images/UI/Background_3.png);
+   z-index: -2;
 }
 
 .carousel_move{
@@ -90,18 +114,15 @@ body {
 
 .showBook{
    width: 300vw;
-   height: 810px;
+   height: 100vh;
    left: 0%;
    display: flex;
-   background-color: #ADE0A7;
    transform: translateX(0px);
 }
 
 .showBooks{
    width: 100vw;
    height: 100%;
-   /* background-color: #007CFF; */
-   /* border: 1px solid red; */
    display: flex;
    align-items: center;
    justify-content: center;
@@ -110,13 +131,13 @@ body {
 .cards{
    display: flex;
    /* background-color: #47CC47; */
-   /* border: 10px solid rgb(34, 10, 255); */
-   transform: translateY(-100px);
-   display: flex;
    gap: 30px;
+   flex-shrink: 1;
+   width: 100%;
+   box-sizing: border-box;
+   padding: 0px 24px;
+   justify-content: center;
 }
-
-
 
 .showAll{
    color: white;
@@ -442,19 +463,31 @@ body {
 }
 
 
-
-
 /* 오른쪽 그림판 */
 .miniBack{
-   width: 60px;
-   height: 60px;
+   padding: 10px;
+   background-color: #F5F5F5;
+   background-repeat: no-repeat;
+   width: 70px;
+   height: 70px;
+   background-position: 50%;
    background-image: url(./images/UI/back.png);
+   position: absolute;
+   top: 70px;
+}
+.miniBack.left{
+   left: -90px;
+   border-radius: 70px 0px 0px 70px;
+}
+.miniBack.right{
+   right:-90px;
+   border-radius: 0px 70px 70px 0px;
 }
 
 .drawing,.building,.stuff{
    right: 0;
    box-sizing: border-box;
-   width: 500px;
+   width: 430px;
    height: 100%;
    background-color: #F5F5F5;
    position: absolute;
@@ -463,10 +496,12 @@ body {
    padding: var(--drawing-Padding);
    transition: all 0.2s ease-in-out;
    box-shadow: rgba(0, 0, 0, 0.068) 0px 0px 40px;
+   display: flex;
+   flex-direction: column;
 }
 
 .leftMove{
-   right: -500px;
+   right: -590px;
 }
 
 
@@ -496,6 +531,16 @@ body {
 .buildingBox{
    height: 300px;
    background-color: white;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   font-size: 24px;
+   
+   background-image: url(./images/UI/NoneHouse.png);
+   background-position: center;
+   background-size: 60%;
+   background-repeat: no-repeat;
+
 }
 
 .buildingBox:nth-child(1){
@@ -503,11 +548,15 @@ body {
    background-position: center;
    background-size: 130%;
    background-repeat: no-repeat;
+
+   pointer-events:all ;
 }
 
 
 #p5-container{
-   margin-top: 10px;
+   background-size: 90%;
+   background-repeat: no-repeat;
+   background-position: center;
    background-image: url(./images/UI/backHuman.png);
 }
 
@@ -522,10 +571,9 @@ body {
 }
 
 .color, .color2{
-   /* background-color: aqua; */
    display: grid;
    flex-wrap: wrap;
-   gap: 14px 34px;
+   gap: 14px;
    grid-template-columns: repeat(5, 1fr);
 }
 
@@ -535,12 +583,18 @@ body {
    border-radius: 50%;
    position: relative;
    border: 1px solid #CDCDCD;
+   box-sizing: border-box;
+}
+
+.cButton.active{
+   border: 2px solid #5f5f5f;
 }
 
 .cButton div{
    width: 62px;
    height: 62px;
    border-radius: 50%;
+   pointer-events: none;
 }
 
 .size .cButton{
@@ -598,20 +652,25 @@ body {
    --button-height: 56px;
   }
 
+.sendButtons{
+   position: absolute;
+   bottom: 24px;
+   z-index: 99;
+   display: flex;
+   flex-direction: column;
+   gap: 10px;
+}
+
 .sendButton,.sendButton2{
    color: white;
-   position: absolute;
    display: block;
-   width: 324px;
-   left: 50%;
-   transform: translateX(-50%);
+   width: 382px;
    text-align: center;
    height: 83px;
    line-height: var(--button-height);
    font-size: 20px;
    font-weight: 700;
    cursor: pointer;
-   z-index: 99;
 }
 
 .come{
@@ -721,7 +780,6 @@ body {
    font-size: 56px;
    padding: 24px;
    border:none;
-   border-bottom: 4px solid rgba(255, 255, 255, 0.397);
    text-align: center;
    color: rgb(37, 37, 37);
    background-color: #F8FBFD;
@@ -796,7 +854,7 @@ input:focus { outline: none; }
    text-align: center;
 }
 
-.playWithButton{
+.playWithButton, .playWithButton2{
    font-family: "pretendard";
    box-sizing: border-box;
    display: flex;

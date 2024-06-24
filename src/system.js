@@ -14,6 +14,9 @@ export default function system() {
     const moveStart = document.querySelector('.moveStart')
     const miniBack = document.querySelectorAll('.miniBack')
 
+    const tutorial = document.querySelectorAll('.tutorial')
+    const namemake = document.querySelector('.namemake')
+
     //녹음하고 있는지
     let record = false;
     moveStart.addEventListener('click', () => {
@@ -67,6 +70,10 @@ export default function system() {
                 building.classList.add('leftMove')
                 drawMode = false;
                 buildingMode = false;
+                tutorial.forEach(function(item){
+                    item.classList.add('displayNone')
+                    namemake.classList.add('displayNone')
+                })
         })
     })
 

@@ -6,7 +6,9 @@
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/addons/p5.sound.min.js"></script>
-   <title>Document</title>
+
+   <link rel="icon" href="./favicon.ico">
+   <title>Doodle World</title>
    <link rel="stylesheet" href="./main.css">
    <script src="sketch.js"></script>
    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
@@ -41,6 +43,9 @@
    <!-- 전체 동화 -->
    <div class="showAll"></div>
    <div class="carousel">
+      <div class="background_1 background"></div>
+      <div class="background_2 background"></div>
+      <div class="background_3 background"></div>
       <div class="showBook">
       </div>
       <div class="showBook_info">
@@ -93,22 +98,30 @@
 
    <div class="tutorial displayNone animation-easeUp">
       <div class="img" id="canvasImage"></div>
-      <input type="text" class="namearea" placeholder="동화의 이름을 지어주세요">
+      <input type="text" class="namearea" placeholder="선녀와 나무꾼">
       <div class="titleButton"></div>
    </div>
    
    <div class="namemake displayNone animation-fadein"></div>
 
    <div class="tutorial displayNone animation-easeUp playWith">
+      <div class="miniBack sys right"></div>
       <div class="playWithButton">방 만들기</div>
-      <div class="playWithButton">방에 입장하기</div>
+      <div class="playWithButton2">방에 입장하기</div>
    </div>
    <div class="tutorial displayNone animation-easeUp code">
+      <div class="miniBack sys right"></div>
       <p>친구에게 초대코드를 알려주세요!</p>
       <div class="maxNumber">
          <img src="images/UI/people.png" alt=""><span>0/3</span>
       </div>
       <h2>1125A</h2>
+      <div class="titleButton together"></div>
+   </div>
+   <div class="tutorial displayNone animation-easeUp code2">
+      <div class="miniBack sys right"></div>
+      <p>친구의 코드를 적어주세요!</p>
+      <input type="text" class="namearea" placeholder="1125A">
       <div class="titleButton together"></div>
    </div>
 
@@ -119,19 +132,17 @@
    
    <!-- 오른쪽 그림판 -->
    <div class="drawing leftMove">
-      <div class="miniBack sys"></div>
+      <div class="miniBack sys left"></div>
       <div id="p5-container"></div>
-
       <div class="painting">
          <div class="size">
-            <div data-size="6" class="cButton" id = "small"><div data-size="6"></div></div>
+            <div data-size="6" class="cButton active" id = "small"><div data-size="6"></div></div>
             <div data-size="12" class="cButton" id = "regular"><div data-size="12"></div></div>
             <div data-size="18" class="cButton" id = "medium"><div data-size="18"></div></div>
             <div data-size="24" class="cButton" id = "bold"><div data-size="24"></div></div>
          </div>
          <div class="color">
-            <div data-color="#FA2B2D" class="cButton" id = "red"><div data-color="#FA2B2D"></div></div>
-
+            <div data-color="#FA2B2D" class="cButton active" id = "red"><div data-color="#FA2B2D"></div></div>
             <div data-color="#FF9700" class="cButton" id = "tangerine"><div data-color="#FF9700"></div></div>
             <div data-color="#ffee00" class="cButton" id = "red"><div data-color="#ffee00"></div></div>
             <div data-color="#47CC47" class="cButton" id = "red"><div data-color="#47CC47"></div></div>
@@ -143,28 +154,28 @@
             <div data-color="#fff" class="cButton" id = "red"><div data-color="#fff"></div></div>
          </div>
       </div>
-      <div class="sendButton come"></div>
-      <div class="sendButton delete delete1"></div>
+      <div class="sendButtons">
+         <div class="sendButton come"></div>
+         <div class="sendButton delete delete1"></div>
+      </div>
    </div>
-
-
 
 
 
    <!-- 물건 그림판 -->
    <div class="stuff leftMove">
-      <div class="miniBack sys"></div>
+      <div class="miniBack sys left"></div>
       <div id="p5-container2"></div>
 
       <div class="painting">
          <div class="size2">
-            <div data-size="6" class="cButton" id = "small"><div data-size="6"></div></div>
+            <div data-size="6" class="cButton active" id = "small"><div data-size="6"></div></div>
             <div data-size="12" class="cButton" id = "regular"><div data-size="12"></div></div>
             <div data-size="18" class="cButton" id = "medium"><div data-size="18"></div></div>
             <div data-size="24" class="cButton" id = "bold"><div data-size="24"></div></div>
          </div>
          <div class="color2">
-            <div data-color="#FA2B2D" class="cButton" id = "red"><div data-color="#FA2B2D"></div></div>
+            <div data-color="#FA2B2D" class="cButton active" id = "red"><div data-color="#FA2B2D"></div></div>
             <div data-color="#FF9700" class="cButton" id = "tangerine"><div data-color="#FF9700"></div></div>
             <div data-color="#ffee00" class="cButton" id = "red"><div data-color="#ffee00"></div></div>
             <div data-color="#47CC47" class="cButton" id = "red"><div data-color="#47CC47"></div></div>
@@ -176,23 +187,30 @@
             <div data-color="#fff" class="cButton" id = "red"><div data-color="#fff"></div></div>
          </div>
       </div>
-      <div class="sendButton2 come"></div>
-      <div class="sendButton2 delete delete2"></div>
+      <div class="sendButtons">
+         <div class="sendButton2 come"></div>
+         <div class="sendButton2 delete delete2"></div>
+      </div>
    </div>
 
 
 
    <!-- 오른쪽 건물배치 -->
    <div class="building leftMove">
-      <div class="miniBack sys"></div>
+      <div class="miniBack sys left"></div>
       <div class='dragable'>
          <div class="buildingList">
             <div class="buildingBox" data-name="House01"></div>
-            <div class="buildingBox" data-name="House02"></div>
-            <div class="buildingBox" data-name="House03"></div>
-            <div class="buildingBox" data-name="House04"></div>
-            <div class="buildingBox" data-name="House05"></div>
-            <div class="buildingBox" data-name="House06"></div>
+            <div class="buildingBox" data-name="House02">
+            </div>
+            <div class="buildingBox" data-name="House03">
+            </div>
+            <div class="buildingBox" data-name="House04">
+            </div>
+            <div class="buildingBox" data-name="House05">
+            </div>
+            <div class="buildingBox" data-name="House06">
+            </div>
          </div>
       </div>
    </div>

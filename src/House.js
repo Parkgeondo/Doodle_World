@@ -52,7 +52,6 @@ export default class Plane {
                 this.actions[2].loop = LoopOnce;
 
                 // 숨쉬는 애니메이션
-                // this.actions[0].play();
 
                 this.mesh.castShadow = true;
 

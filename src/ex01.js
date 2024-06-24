@@ -22,6 +22,7 @@ import createP52 from './sketch2';
 import Environment from './environment';
 import Environment_sea from './environment_sea';
 import Environment_night from './environment_night';
+import { connectStorageEmulator } from 'firebase/storage';
 
 //UI 시스템
 
@@ -125,6 +126,8 @@ export default function example() {
    const showBook_block = document.querySelectorAll('.showBook_block');
    showBook_block[0].className = 'showBook_block showBook_block_seleted';
 
+   const background = document.querySelectorAll('.background');
+
    //동화책이 없으면 작동X
    if(showBooks.length !== 0){
       for(let i = 0; i < totalPages; i++){
@@ -135,6 +138,10 @@ export default function example() {
       showBooks[i].addEventListener('mousemove', function(e){
          if(clicked == true){
             showBook.style.transform = `translateX(${-currentPage * 100}vw) translateX(${e.clientX - startPoint}px)`;
+
+            for(let i = 0; i < background.length; i ++){
+               background[i].style.transform = `translateX(${-currentPage * 100 / ((i+1)*100)}vw) translateX(${(e.clientX - startPoint) / ((i+1)*100)}px)`;
+            }
          }
       })
       showBooks[i].addEventListener('mouseup', function(e){
@@ -147,6 +154,10 @@ export default function example() {
          }
         showBook.style.transition = 'all 0.5s';
         showBook.style.transform = `translateX(${-currentPage * 100}vw)`;
+        for(let i = 0; i < background.length; i ++){
+         background[i].style.transition = 'all 0.5s';
+         background[i].style.transform = `translateX(${-currentPage * 100 / ((i+1)*100)}vw)`;
+      }
       setTimeout(()=>{
          showBook.style.transition = `none`
       },500)
@@ -316,7 +327,7 @@ export default function example() {
 
    //동화책 저장선택
    introLookSave.addEventListener('click', function(){
-      introStep = 'selectStory'
+      introStep = 'selectStory_detail'
       uiControl(introStep)
       cameraMove({x:-0.6, y: 5, z:-4.9},{x:-0.6, y: 0, z:-14});
    });
@@ -401,7 +412,10 @@ export default function example() {
    //멀티 플레이 UI
    const withButton = document.querySelector('.with')
    const playWith = document.querySelector('.playWith')
+   const playWithButton = document.querySelector('.playWithButton')
+   const playWithButton2 = document.querySelector('.playWithButton2')
    const code = document.querySelector('.code')
+   const code2 = document.querySelector('.code2')
 
    //플레이, 없애기
    const controlButton = document.querySelector('.controlButton')
@@ -410,9 +424,14 @@ export default function example() {
       namemake.classList.remove('displayNone')
    })
 
-   playWith.addEventListener('click',() => {
+   playWithButton.addEventListener('click',() => {
       playWith.classList.add('displayNone')
       code.classList.remove('displayNone')
+   })
+
+   playWithButton2.addEventListener('click',() => {
+      playWith.classList.add('displayNone')
+      code2.classList.remove('displayNone')
    })
 
    const namemake = document.querySelector('.namemake')
@@ -874,10 +893,13 @@ export default function example() {
          objects = [];
       }else if(step == 'selectStory'){
          //selectStory는 저장된 동화책 선택 화면
+         // backButton.classList.add('introBackButton')
+         // intro.classList.add('introDown')
+         // showAll.classList.add('showAll_move')
+      }else if(step == 'selectStory_detail'){
          backButton.classList.add('introBackButton')
          intro.classList.add('introDown')
          showAll.classList.add('showAll_move')
-      }else if(step == 'selectStory_detail'){
          carousel.classList.add('carousel_move')
          showAll.classList.remove('showAll_move')
       }else if(step == 'intomap'){
@@ -930,10 +952,10 @@ export default function example() {
          cameraMove({x:-2, y: 4.8, z:6},{x:1, y: -10, z:-1})
          introStep = 'intro';
          uiControl(introStep)
-      }else if(introStep == 'selectStory'){
-         cameraMove({x:-2, y: 4.8, z:6},{x:1, y: -10, z:-1})
-         introStep = 'intro';
-         uiControl(introStep)
+      // }else if(introStep == 'selectStory'){
+      //    cameraMove({x:-2, y: 4.8, z:6},{x:1, y: -10, z:-1})
+      //    introStep = 'intro';
+      //    uiControl(introStep)
       }else if(introStep == 'selectStory_detail'){
          cameraMove({x:-2, y: 4.8, z:6},{x:1, y: -10, z:-1})
          introStep = 'intro';
@@ -1055,8 +1077,8 @@ export default function example() {
    const canvas3 = document.querySelector('#p5-container2')
 
    //p5 파일 설정
-   createP5('p5-container', 450, 450, '#FFFFFF00');
-   createP52('p5-container2', 450, 450, '#FFFFFF00');
+   createP5('p5-container', 450, 400, '#FFFFFF00');
+   createP52('p5-container2', 450, 400, '#FFFFFF00');
 
    const sendButton = document.querySelector('.sendButton')
    const sendButton2 = document.querySelector('.sendButton2')
@@ -1130,11 +1152,9 @@ export default function example() {
    // 건물 가져오기
    buildingBox.forEach(function(item){
       item.addEventListener('click', (e) => {
-      console.log(e.target.dataset.name)
          const house = new House({
             textureLoader2,
             scene,
-            // imageSrc: dataURL,
             x:getRandomInt(4),
             y:0,
             z:getRandomInt(4),
@@ -1143,11 +1163,7 @@ export default function example() {
             record,
             modelSrc:`./models/${e.target.dataset.name}.glb`
          })
-
          houses.push(house);
-
-         // const set = houses.length - 1;
-         // draggableObject = houses[set].mesh;
       })
    })
 
